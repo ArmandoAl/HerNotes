@@ -1,13 +1,12 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'package:first/Views/Mobile/chat.dart';
 import 'package:first/Views/Mobile/diary.dart';
 import 'package:first/Views/Mobile/homeView.dart';
 import 'package:first/Views/Mobile/progress.dart';
 import 'package:first/Views/Mobile/settings.dart';
 import 'package:first/Views/guia.dart';
+import 'package:first/provider/notes_provider.dart';
 import 'package:first/provider/user_provider.dart';
-import 'package:first/services/auth_service.dart';
 import 'package:first/utils/theme_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -18,14 +17,12 @@ void main() async {
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
-  runApp(MyApp());
+  runApp(const MyApp());
 }
 
 // ignore: must_be_immutable
 class MyApp extends StatelessWidget {
-  MyApp({super.key});
-
-  AuthService authService = AuthService();
+  const MyApp({super.key});
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
@@ -33,6 +30,9 @@ class MyApp extends StatelessWidget {
       providers: [
         ChangeNotifierProvider(create: (_) => UserProvider()),
         ChangeNotifierProvider(create: (_) => ThemeProvider()),
+        ChangeNotifierProvider(
+            create: (_) => NotesProvider()
+              ..getNotes(FirebaseAuth.instance.currentUser!.uid.toString())),
       ],
       child: MaterialApp(
         // Resto del código
@@ -50,7 +50,6 @@ class MyApp extends StatelessWidget {
                 ruta: 'registro',
               ),
           '/settings': (context) => const ConfiguracionView(),
-          '/chat': (context) => const ChatView(),
           '/progress': (context) => const ProgresoView(),
           '/diary': (context) => const DiarioView(),
           '/home': (context) => const GuiaView(

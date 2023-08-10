@@ -86,17 +86,17 @@ class _DrawerWidgetState extends State<DrawerWidget> {
               ),
             ),
             Container(
-              color: widget.currentPage == 'Chat'
+              color: widget.currentPage == 'Diary'
                   ? const Color.fromARGB(255, 222, 235, 247)
                   : Colors.transparent,
               child: ListTile(
                 selectedColor: Colors.white,
-                selected: ModalRoute.of(context)!.settings.name == '/chat',
+                selected: ModalRoute.of(context)!.settings.name == '/diary',
                 title: Row(
                   children: <Widget>[
                     Icon(
-                      Icons.message,
-                      color: widget.currentPage == 'Chat'
+                      Icons.book,
+                      color: widget.currentPage == 'Diary'
                           ? Colors.black
                           : Colors.white,
                       size: 30,
@@ -105,9 +105,9 @@ class _DrawerWidgetState extends State<DrawerWidget> {
                       width: 10,
                     ),
                     Text(
-                      'Mensajes',
+                      'Diario',
                       style: TextStyle(
-                          color: widget.currentPage == 'Chat'
+                          color: widget.currentPage == 'Diary'
                               ? Colors.black
                               : Colors.white,
                           fontSize: 18),
@@ -116,9 +116,8 @@ class _DrawerWidgetState extends State<DrawerWidget> {
                 ),
                 onTap: () {
                   Navigator.pop(context);
-                  if (ModalRoute.of(context)!.settings.name != '/chat') {
-                    Navigator.pushNamedAndRemoveUntil(
-                        context, '/chat', (route) => false);
+                  if (ModalRoute.of(context)!.settings.name != '/diary') {
+                    Navigator.pushNamed(context, '/diary');
                   }
                 },
               ),
@@ -159,46 +158,6 @@ class _DrawerWidgetState extends State<DrawerWidget> {
                   Navigator.pop(context);
                   if (ModalRoute.of(context)!.settings.name != '/progress') {
                     Navigator.pushNamed(context, '/progress');
-                  }
-                },
-              ),
-            ),
-            const SizedBox(
-              height: 20,
-            ),
-            Container(
-              color: widget.currentPage == 'Diary'
-                  ? const Color.fromARGB(255, 222, 235, 247)
-                  : Colors.transparent,
-              child: ListTile(
-                selectedColor: Colors.white,
-                selected: ModalRoute.of(context)!.settings.name == '/diary',
-                title: Row(
-                  children: <Widget>[
-                    Icon(
-                      Icons.book,
-                      color: widget.currentPage == 'Diary'
-                          ? Colors.black
-                          : Colors.white,
-                      size: 30,
-                    ),
-                    const SizedBox(
-                      width: 10,
-                    ),
-                    Text(
-                      'Diario',
-                      style: TextStyle(
-                          color: widget.currentPage == 'Diary'
-                              ? Colors.black
-                              : Colors.white,
-                          fontSize: 18),
-                    ),
-                  ],
-                ),
-                onTap: () {
-                  Navigator.pop(context);
-                  if (ModalRoute.of(context)!.settings.name != '/diary') {
-                    Navigator.pushNamed(context, '/diary');
                   }
                 },
               ),

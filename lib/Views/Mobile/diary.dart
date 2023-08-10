@@ -1,8 +1,10 @@
-import 'package:first/utils/theme_provider.dart';
+import 'package:first/Views/Mobile/notePage.dart';
+import 'package:first/provider/notes_provider.dart';
 import 'package:first/widgets/drawer.dart';
-import 'package:first/widgets/header.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+
+import '../../widgets/header.dart';
 
 class DiarioView extends StatefulWidget {
   const DiarioView({super.key});
@@ -12,196 +14,62 @@ class DiarioView extends StatefulWidget {
 }
 
 class _DiarioViewState extends State<DiarioView> {
-  final List<Notes> _notes = <Notes>[];
+  ScrollController notesScrollController = ScrollController();
+  final titleController = TextEditingController();
+  final contentController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
-    ThemeProvider theme = Provider.of<ThemeProvider>(context);
+    final notesProvider = Provider.of<NotesProvider>(context, listen: true);
+
     return Scaffold(
       appBar: const HeaderWidget(),
-      drawer: const DrawerWidget(currentPage: 'Diary'),
-      body: Container(
-        decoration: BoxDecoration(
-          color: theme.isDarkModeEnabled
-              ? const Color(0xFF212121)
-              : const Color.fromARGB(245, 223, 219, 219),
-        ),
-        child: Column(
-          children: <Widget>[
-            Expanded(
-              child: ListView(reverse: true, children: <Widget>[
-                ListBody(
-                  reverse: true,
-                  children: _notes,
-                ),
-              ]),
-            ),
-            Container(
-              height: 60,
-              padding: const EdgeInsets.all(10.0),
-              decoration: BoxDecoration(
-                //put border radius only on the top
-                borderRadius: const BorderRadius.only(
-                  topLeft: Radius.circular(20.0),
-                  topRight: Radius.circular(20.0),
-                ),
-                color: theme.isDarkModeEnabled
-                    ? theme.dark['backgroundColor']
-                    : theme.light['backgroundColor'],
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.grey.withOpacity(0.5),
-                    spreadRadius: 5,
-                    blurRadius: 7,
-                    offset: const Offset(0, 3),
-                  )
-                ],
-              ),
-              child: Row(
-                children: [
-                  SizedBox(
-                      width: MediaQuery.of(context).size.width * 0.45,
-                      child: Center(
-                        child: IconButton(
-                            onPressed: () {}, icon: const Icon(Icons.search)),
-                      )),
-                  const Spacer(),
-                  SizedBox(
-                      width: MediaQuery.of(context).size.width * 0.45,
-                      child: Center(
-                        child: IconButton(
-                            onPressed: () {
-                              showAddNoteDialog(context, _notes);
-                            },
-                            icon: const Icon(Icons.add)),
-                      )),
-                ],
-              ),
-            )
-          ],
-        ),
+      drawer: const DrawerWidget(
+        currentPage: 'Diary',
       ),
-    );
-  }
-
-  void showAddNoteDialog(BuildContext context, List<Notes> notes) {
-    List<DropdownMenuItem<String>> items = [
-      const DropdownMenuItem(
-        value: 'Feliz',
-        child: Text('Feliz'),
+      body: ListView.builder(
+        controller: notesProvider.notesScrollController,
+        itemCount: notesProvider.notes.length,
+        itemBuilder: (context, index) {
+          if (notesProvider.notes.isEmpty) {
+            return const Center(
+                child: Text('No hay notas', style: TextStyle(fontSize: 20)));
+          } else {
+            final note = notesProvider.notes[index];
+            return ListTile(
+              title: Text(note.title),
+              subtitle: Text(note.content),
+              trailing: Text(note.mood.toString()),
+            );
+          }
+        },
       ),
-      const DropdownMenuItem(
-        value: 'Triste',
-        child: Text('Triste'),
-      ),
-      const DropdownMenuItem(
-        value: 'Enojado',
-        child: Text('Enojado'),
-      ),
-    ];
-
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        String title = '';
-        String content = '';
-        final String currentDate =
-            '${DateTime.now().hour}:${DateTime.now().minute} ${DateTime.now().day}/${DateTime.now().month}/${DateTime.now().year}';
-
-        return AlertDialog(
-          shape: const RoundedRectangleBorder(
-            borderRadius: BorderRadius.all(Radius.circular(20)),
-          ),
-          title: Text(currentDate),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: <Widget>[
-              DropdownButtonFormField(
-                  items: items,
-                  onChanged: (value) {
-                    title = value.toString();
-                  }),
-              TextField(
-                onChanged: (value) {
-                  content = value;
-                },
-                decoration: const InputDecoration(
-                  labelText: 'Escribe',
-                ),
-              ),
-            ],
-          ),
-          actions: <Widget>[
-            TextButton(
-              onPressed: () {
-                Navigator.pop(context); // Cerrar el diálogo
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          Navigator.push(
+            context,
+            PageRouteBuilder(
+              pageBuilder: (context, animation, secondaryAnimation) {
+                return const WriteNotePage();
               },
-              child: const Text('Cancelar'),
-            ),
-            TextButton(
-              onPressed: () {
-                // Guardar la nota en la lista de notas
-                final Notes newNote = Notes(title, content, currentDate);
-                setState(() {
-                  notes.add(newNote);
-                });
-                Navigator.pop(context); // Cerrar el diálogo
+              transitionsBuilder:
+                  (context, animation, secondaryAnimation, child) {
+                var begin = const Offset(1.0, 0.0);
+                var end = Offset.zero;
+                var curve = Curves.easeInOutQuart;
+                var tween = Tween(begin: begin, end: end)
+                    .chain(CurveTween(curve: curve));
+                var offsetAnimation = animation.drive(tween);
+                return SlideTransition(
+                  position: offsetAnimation,
+                  child: child,
+                );
               },
-              child: const Text('Guardar'),
             ),
-          ],
-        );
-      },
-    );
-  }
-}
-
-class Notes extends StatelessWidget {
-  final String title;
-  final String description;
-  final String date;
-
-  const Notes(this.title, this.description, this.date, {super.key});
-
-  List<Widget> note(context) {
-    return <Widget>[
-      Container(
-        color: const Color(0xF5F5F5F5),
-        child: ListTile(
-          title: Text(
-            title,
-            style: const TextStyle(
-              color: Colors.black,
-              fontSize: 18,
-            ),
-          ),
-          subtitle: Text(
-            description,
-            style: const TextStyle(
-              color: Colors.black,
-              fontSize: 14,
-            ),
-          ),
-          trailing: Text(
-            date,
-            style: const TextStyle(
-              color: Colors.black,
-              fontSize: 14,
-            ),
-          ),
-        ),
+          );
+        },
+        child: const Icon(Icons.add),
       ),
-      const Divider(
-        color: Colors.black,
-        thickness: 1,
-      ),
-    ];
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      children: note(context),
     );
   }
 }

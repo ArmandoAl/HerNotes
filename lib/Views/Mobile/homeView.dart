@@ -1,6 +1,5 @@
 // ignore_for_file: file_names
-
-import 'package:first/Views/Mobile/chat.dart';
+import 'package:first/Views/Mobile/diary.dart';
 import 'package:first/provider/user_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -26,7 +25,7 @@ class _HomeViewState extends State<HomeView> {
             );
           } else {
             if (snapshot.hasData) {
-              return const ChatView();
+              return const DiarioView();
             } else {
               // Usuario no autenticado
               Navigator.pushNamedAndRemoveUntil(

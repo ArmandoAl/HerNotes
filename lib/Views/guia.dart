@@ -1,11 +1,11 @@
 // ignore_for_file: avoid_print
 
+import 'package:first/Views/Mobile/homeView.dart';
 import 'package:first/Views/Mobile/verfication_code.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../provider/user_provider.dart';
-import 'Mobile/homeView.dart';
 import 'Mobile/login.dart';
 
 class GuiaView extends StatefulWidget {
