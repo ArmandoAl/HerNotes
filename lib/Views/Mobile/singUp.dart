@@ -1,10 +1,10 @@
 // ignore_for_file: file_names
 
+import 'package:first/Views/Mobile/homeView.dart';
+import 'package:first/models/user_model.dart';
+import 'package:first/provider/user_provider.dart';
 import 'package:flutter/material.dart';
-import '../../services/auth_service.dart';
-import '../Web/webMain.dart';
-import '../guia.dart';
-import '../responsiveBuilder.dart';
+import 'package:provider/provider.dart';
 
 class SingUpView extends StatefulWidget {
   const SingUpView({Key? key}) : super(key: key);
@@ -20,45 +20,37 @@ class _SingUpViewState extends State<SingUpView> {
   TextEditingController emailController = TextEditingController();
   TextEditingController passwordController = TextEditingController();
 
-  void singIn() async {
+  void singIn(UserProvider userProvider, BuildContext context) async {
     setState(() {
       loading = true;
     });
 
-    String email = emailController.text.trim();
-    String password = passwordController.text.trim();
-    String name = nameController.text.trim();
+    // String email = emailController.text.trim();
+    // String password = passwordController.text.trim();
+    // String name = nameController.text.trim();
 
-    if (email.isNotEmpty && password.isNotEmpty && name.isNotEmpty) {
-      String res = await AuthService().singUpUser(
-        email: email,
-        password: password,
-        name: name,
-      );
+    if (emailController.text.isNotEmpty &&
+        passwordController.text.isNotEmpty &&
+        nameController.text.isNotEmpty) {
+      UserModel? user = await userProvider.singUp(
+          emailController.text, passwordController.text, nameController.text);
 
-      if (res == "Signed up") {
+      if (user != null) {
         setState(() {
           loading = false;
         });
-
-        // UserProvider user =
-        //     // ignore: use_build_context_synchronously
-        //     Provider.of<UserProvider>(context, listen: false);
-
-        // await user.setUser();
-
         // ignore: use_build_context_synchronously
-        Navigator.of(context).pushReplacement(MaterialPageRoute(
-            builder: (context) => const GuiaView(ruta: 'verificacion')));
+        Navigator.of(context).pushReplacement(
+            MaterialPageRoute(builder: (context) => const HomeView()));
       } else {
         setState(() {
           loading = false;
         });
         // ignore: use_build_context_synchronously
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(res),
-            duration: const Duration(seconds: 2),
+          const SnackBar(
+            content: Text("Error al registrarse"),
+            duration: Duration(seconds: 2),
           ),
         );
       }
@@ -67,10 +59,10 @@ class _SingUpViewState extends State<SingUpView> {
 
   @override
   Widget build(BuildContext context) {
-    return Responsive(
-        mobile: mobileSingUp(context, emailController, passwordController,
-            nameController, singIn, loading),
-        web: const WebMain());
+    UserProvider userProvider =
+        Provider.of<UserProvider>(context, listen: false);
+    return mobileSingUp(context, emailController, passwordController,
+        nameController, singIn, loading, userProvider);
   }
 }
 
@@ -80,7 +72,8 @@ Widget mobileSingUp(
     TextEditingController passwordController,
     TextEditingController nameController,
     Function singIn,
-    bool loading) {
+    bool loading,
+    UserProvider userProvider) {
   return Scaffold(
       body: Container(
     alignment: Alignment.center,
@@ -117,7 +110,7 @@ Widget mobileSingUp(
             height: 50,
           ),
           ElevatedButton(
-            onPressed: () => singIn(),
+            onPressed: () => singIn(userProvider, context),
             style: ElevatedButton.styleFrom(
               padding: const EdgeInsets.all(20),
               foregroundColor: Colors.white,

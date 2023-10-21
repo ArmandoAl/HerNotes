@@ -1,25 +1,28 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:first/models/contenido_model.dart';
+import 'package:first/models/emocion_model.dart';
 
 class NotesModel {
+  int? id;
   String title;
-  String content;
-  String date;
-  double mood;
+  ContenidoModel content;
+  List<EmocionModel>? emociones;
 
   NotesModel({
+    this.id,
     required this.title,
     required this.content,
-    required this.date,
-    required this.mood,
+    this.emociones,
   });
 
-  factory NotesModel.fromFirestore(DocumentSnapshot doc) {
-    final data = doc.data() as Map<String, dynamic>;
+  factory NotesModel.fromJson(Map<String, dynamic> doc) {
     return NotesModel(
-      title: data['title'] ?? '',
-      content: data['content'] ?? '',
-      date: data['date'] ?? '',
-      mood: data['mood'] ?? '',
+      id: doc['id'],
+      title: doc['title'],
+      content: ContenidoModel.fromJson(doc['contenido']),
+      emociones: doc['emociones'] != null
+          ? List<EmocionModel>.from(
+              doc['emociones'].map((e) => EmocionModel.fromJson(e)))
+          : null,
     );
   }
 
@@ -27,8 +30,7 @@ class NotesModel {
     return {
       'title': title,
       'content': content,
-      'date': date,
-      'mood': mood,
+      'emociones': emociones,
     };
   }
 }

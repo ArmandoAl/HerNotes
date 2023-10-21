@@ -1,9 +1,9 @@
+// ignore_for_file: avoid_print, use_build_context_synchronously, duplicate_ignore
 import 'package:first/Views/Mobile/singUp.dart';
-import 'package:first/Views/Web/webMain.dart';
-import 'package:first/Views/responsiveBuilder.dart';
+import 'package:first/models/login_model.dart';
+import 'package:first/provider/user_provider.dart';
 import 'package:flutter/material.dart';
-import '../../services/auth_service.dart';
-import '../guia.dart';
+import 'package:provider/provider.dart';
 
 class LoginView extends StatefulWidget {
   const LoginView({super.key});
@@ -17,33 +17,32 @@ class _LoginViewState extends State<LoginView> {
   TextEditingController emailController = TextEditingController();
   TextEditingController passwordController = TextEditingController();
 
-  void login(BuildContext context) async {
+  void login(BuildContext context, UserProvider userProvider) async {
     setState(() {
       loading = true;
     });
 
-    String res = await AuthService().login(
+    Login loginModel = Login(
       email: emailController.text,
       password: passwordController.text,
     );
 
-    if (res == "Logged in") {
+    final response = userProvider.login(loginModel);
+
+    // ignore: unnecessary_null_comparison
+    if (response != null) {
       setState(() {
         loading = false;
       });
-
       // ignore: use_build_context_synchronously
-      Navigator.of(context).pushReplacement(MaterialPageRoute(
-          builder: (context) => const GuiaView(ruta: 'homeView')));
+      Navigator.pushReplacementNamed(context, '/home');
     } else {
       setState(() {
         loading = false;
       });
-      // ignore: use_build_context_synchronously
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(res),
-          duration: const Duration(seconds: 2),
+        const SnackBar(
+          content: Text('Error al iniciar sesión'),
         ),
       );
     }
@@ -51,15 +50,20 @@ class _LoginViewState extends State<LoginView> {
 
   @override
   Widget build(BuildContext context) {
-    return Responsive(
-        mobile: mobileLogin(
-            context, emailController, passwordController, login, loading),
-        web: const WebMain());
+    UserProvider userProvider =
+        Provider.of<UserProvider>(context, listen: false);
+    return mobileLogin(context, emailController, passwordController, login,
+        loading, userProvider);
   }
 }
 
-Widget mobileLogin(BuildContext context, TextEditingController emailController,
-    TextEditingController passwordController, Function login, bool loading) {
+Widget mobileLogin(
+    BuildContext context,
+    TextEditingController emailController,
+    TextEditingController passwordController,
+    Function login,
+    bool loading,
+    UserProvider userProvider) {
   return Scaffold(
       body: Container(
     alignment: Alignment.center,
@@ -93,7 +97,7 @@ Widget mobileLogin(BuildContext context, TextEditingController emailController,
           ),
           ElevatedButton(
             onPressed: () {
-              login(context);
+              login(context, userProvider);
             },
             style: ElevatedButton.styleFrom(
               padding: const EdgeInsets.all(20),
@@ -103,12 +107,14 @@ Widget mobileLogin(BuildContext context, TextEditingController emailController,
                 borderRadius: BorderRadius.all(Radius.circular(15)),
               ),
             ),
-            child: const Text(
-              "Iniciar sesión",
-              style: TextStyle(
-                fontSize: 20,
-              ),
-            ),
+            child: loading
+                ? const CircularProgressIndicator()
+                : const Text(
+                    "Iniciar sesión",
+                    style: TextStyle(
+                      fontSize: 20,
+                    ),
+                  ),
           ),
           const SizedBox(
             height: 35,
@@ -131,15 +137,13 @@ Widget mobileLogin(BuildContext context, TextEditingController emailController,
                     MaterialPageRoute(
                         builder: (context) => const SingUpView()));
               },
-              child: loading
-                  ? const CircularProgressIndicator()
-                  : const Text(
-                      "Regístrate",
-                      style: TextStyle(
-                        color: Color.fromRGBO(63, 202, 206, 1),
-                        fontSize: 20,
-                      ),
-                    )),
+              child: const Text(
+                "Regístrate",
+                style: TextStyle(
+                  color: Color.fromRGBO(63, 202, 206, 1),
+                  fontSize: 20,
+                ),
+              )),
         ],
       ),
     ]),
@@ -193,11 +197,3 @@ Widget textFieldWidget(
     ]),
   );
 }
-
-
-      // // ignore: use_build_context_synchronously
-      // UserProvider userProvider = Provider.of(context, listen: false);
-      // await userProvider.setUser();
-
-      // // ignore: use_build_context_synchronously
-      // Navigator.pushReplacementNamed(context, '/home');

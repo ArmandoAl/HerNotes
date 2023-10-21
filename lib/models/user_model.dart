@@ -1,33 +1,37 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:first/models/notes_model.dart';
 
 class UserModel {
-  String uid;
+  int? id;
   String name;
   String email;
   String password;
+  List<NotesModel>? notas;
 
   UserModel({
-    required this.uid,
+    this.id,
     required this.name,
     required this.email,
     required this.password,
+    this.notas,
   });
 
-  factory UserModel.fromJson(DocumentSnapshot doc) {
+  factory UserModel.fromJson(Map<String, dynamic> doc) {
     return UserModel(
-      uid: doc['uid'],
+      id: doc['id'],
       name: doc['name'],
       email: doc['email'],
       password: doc['password'],
+      notas: [],
     );
   }
 
   Map<String, dynamic> toJson() {
     return {
-      'uid': uid,
+      'uid': id,
       'name': name,
       'email': email,
       'password': password,
+      'notas': notas,
     };
   }
 }

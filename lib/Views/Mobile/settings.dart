@@ -1,6 +1,5 @@
-import 'package:first/Views/guia.dart';
+import 'package:first/Views/Mobile/login.dart';
 import 'package:first/provider/user_provider.dart';
-import 'package:first/services/auth_service.dart';
 import 'package:first/utils/theme_provider.dart';
 import 'package:first/widgets/header.dart';
 import 'package:flutter/material.dart';
@@ -16,14 +15,11 @@ class ConfiguracionView extends StatefulWidget {
 }
 
 class _ConfiguracionViewState extends State<ConfiguracionView> {
-  final AuthService _authService = AuthService();
-
-  void logout(BuildContext context) async {
-    await _authService.logout();
-
+  void logout(BuildContext context, UserProvider user) async {
+    user.logout();
     // ignore: use_build_context_synchronously
     Navigator.of(context).pushReplacement(
-        MaterialPageRoute(builder: (context) => const GuiaView(ruta: 'login')));
+        MaterialPageRoute(builder: (context) => const LoginView()));
   }
 
   @override
@@ -59,7 +55,6 @@ class _ConfiguracionViewState extends State<ConfiguracionView> {
             ),
             _itemSettings(
                 user,
-                _authService,
                 const Icon(Icons.chat),
                 "idioma",
                 const Color.fromRGBO(183, 109, 56, 1),
@@ -67,14 +62,13 @@ class _ConfiguracionViewState extends State<ConfiguracionView> {
             const SizedBox(
               height: 50,
             ),
-            _itemSettings(user, _authService, const Icon(Icons.notifications),
+            _itemSettings(user, const Icon(Icons.notifications),
                 "notificaciones", const Color.fromRGBO(245, 197, 64, 1), theme),
             const SizedBox(
               height: 50,
             ),
             _itemSettings(
                 user,
-                _authService,
                 const Icon(
                   Icons.dark_mode,
                   color: Colors.white,
@@ -85,8 +79,8 @@ class _ConfiguracionViewState extends State<ConfiguracionView> {
             const SizedBox(
               height: 50,
             ),
-            _itemSettings(user, _authService, const Icon(Icons.logout),
-                "Serrar sesión", const Color.fromRGBO(146, 146, 146, 1), theme),
+            _itemSettings(user, const Icon(Icons.logout), "Serrar sesión",
+                const Color.fromRGBO(146, 146, 146, 1), theme),
           ],
         ),
       ),
@@ -160,8 +154,8 @@ class _ConfiguracionViewState extends State<ConfiguracionView> {
     );
   }
 
-  Widget _itemSettings(UserProvider user, AuthService service, Icon icon,
-      String text, Color color, ThemeProvider theme) {
+  Widget _itemSettings(UserProvider user, Icon icon, String text, Color color,
+      ThemeProvider theme) {
     //en el futuro vas a mandar la ruta o una palabra clave que mande un dialog para configurar
     return Row(
       children: [
@@ -191,7 +185,7 @@ class _ConfiguracionViewState extends State<ConfiguracionView> {
         IconButton(
             onPressed: () {
               if (text == "Serrar sesión") {
-                logout(context);
+                logout(context, user);
               }
               if (text == "Dark Mode") {
                 theme.enableDarkMode(!theme.isDarkModeEnabled);

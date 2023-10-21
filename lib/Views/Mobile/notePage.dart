@@ -1,5 +1,6 @@
 // ignore_for_file: file_names, use_build_context_synchronously
 
+import 'package:first/models/contenido_model.dart';
 import 'package:first/provider/notes_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -98,10 +99,9 @@ Future<void> showEmotionDialog(
                       onTap: () {
                         notesProvider.addNote(
                             title: titleController.text,
-                            content: contentController.text,
-                            date: DateTime.now().toString(),
-                            mood: 10,
-                            userId: userProvider.user!.uid);
+                            content: ContenidoModel(
+                                id: 2, texto: contentController.text),
+                            userId: userProvider.user!.id.toString());
                         Navigator.pop(context);
                       },
                       child: Container(
@@ -118,12 +118,12 @@ Future<void> showEmotionDialog(
                     ),
                     InkWell(
                       onTap: () {
-                        notesProvider.addNote(
-                            title: titleController.text,
-                            content: contentController.text,
-                            date: DateTime.now().toString(),
-                            mood: 5,
-                            userId: userProvider.user!.uid);
+                        // notesProvider.addNote(
+                        //     title: titleController.text,
+                        //     content: contentController.text,
+                        //     date: DateTime.now().toString(),
+                        //     mood: 5,
+                        //     userId: userProvider.user!.uid);
                         Navigator.pop(context);
                       },
                       child: Container(
@@ -140,12 +140,12 @@ Future<void> showEmotionDialog(
                     ),
                     InkWell(
                       onTap: () {
-                        notesProvider.addNote(
-                            title: titleController.text,
-                            content: contentController.text,
-                            date: DateTime.now().toString(),
-                            mood: 0,
-                            userId: userProvider.user!.uid);
+                        // notesProvider.addNote(
+                        //     title: titleController.text,
+                        //     content: contentController.text,
+                        //     date: DateTime.now().toString(),
+                        //     mood: 0,
+                        //     userId: userProvider.user!.uid);
                         Navigator.pop(context);
                       },
                       child: Container(
@@ -168,12 +168,12 @@ Future<void> showEmotionDialog(
                   children: [
                     InkWell(
                       onTap: () {
-                        notesProvider.addNote(
-                            title: titleController.text,
-                            content: contentController.text,
-                            date: DateTime.now().toString(),
-                            mood: 0.75,
-                            userId: userProvider.user!.uid);
+                        // notesProvider.addNote(
+                        //     title: titleController.text,
+                        //     content: contentController.text,
+                        //     date: DateTime.now().toString(),
+                        //     mood: 0.75,
+                        //     userId: userProvider.user!.uid);
                         Navigator.pop(context);
                       },
                       child: Container(
@@ -190,12 +190,12 @@ Future<void> showEmotionDialog(
                     ),
                     InkWell(
                       onTap: () {
-                        notesProvider.addNote(
-                            title: titleController.text,
-                            content: contentController.text,
-                            date: DateTime.now().toString(),
-                            mood: 0.25,
-                            userId: userProvider.user!.uid);
+                        // notesProvider.addNote(
+                        //     title: titleController.text,
+                        //     content: contentController.text,
+                        //     date: DateTime.now().toString(),
+                        //     mood: 0.25,
+                        //     userId: userProvider.user!.uid);
                         Navigator.pop(context);
                       },
                       child: Container(
@@ -212,12 +212,12 @@ Future<void> showEmotionDialog(
                     ),
                     InkWell(
                       onTap: () {
-                        notesProvider.addNote(
-                            title: titleController.text,
-                            content: contentController.text,
-                            date: DateTime.now().toString(),
-                            mood: 0.5,
-                            userId: userProvider.user!.uid);
+                        // notesProvider.addNote(
+                        //     title: titleController.text,
+                        //     content: contentController.text,
+                        //     date: DateTime.now().toString(),
+                        //     mood: 0.5,
+                        //     userId: userProvider.user!.uid);
                         Navigator.pop(context);
                       },
                       child: Container(
@@ -240,12 +240,12 @@ Future<void> showEmotionDialog(
                   children: [
                     InkWell(
                       onTap: () {
-                        notesProvider.addNote(
-                            title: titleController.text,
-                            content: contentController.text,
-                            date: DateTime.now().toString(),
-                            mood: 0.75,
-                            userId: userProvider.user!.uid);
+                        // notesProvider.addNote(
+                        //     title: titleController.text,
+                        //     content: contentController.text,
+                        //     date: DateTime.now().toString(),
+                        //     mood: 0.75,
+                        //     userId: userProvider.user!.uid);
                         Navigator.pop(context);
                       },
                       child: Container(
@@ -262,12 +262,12 @@ Future<void> showEmotionDialog(
                     ),
                     InkWell(
                       onTap: () {
-                        notesProvider.addNote(
-                            title: titleController.text,
-                            content: contentController.text,
-                            date: DateTime.now().toString(),
-                            mood: 0.25,
-                            userId: userProvider.user!.uid);
+                        // notesProvider.addNote(
+                        //     title: titleController.text,
+                        //     content: contentController.text,
+                        //     date: DateTime.now().toString(),
+                        //     mood: 0.25,
+                        //     userId: userProvider.user!.uid);
                         Navigator.pop(context);
                       },
                       child: Container(
@@ -284,12 +284,12 @@ Future<void> showEmotionDialog(
                     ),
                     InkWell(
                       onTap: () {
-                        notesProvider.addNote(
-                            title: titleController.text,
-                            content: contentController.text,
-                            date: DateTime.now().toString(),
-                            mood: 0.5,
-                            userId: userProvider.user!.uid);
+                        // notesProvider.addNote(
+                        //     title: titleController.text,
+                        //     content: contentController.text,
+                        //     date: DateTime.now().toString(),
+                        //     mood: 0.5,
+                        //     userId: userProvider.user!.uid);
                         Navigator.pop(context);
                       },
                       child: Container(
@@ -312,12 +312,12 @@ Future<void> showEmotionDialog(
                   children: [
                     InkWell(
                       onTap: () {
-                        notesProvider.addNote(
-                            title: titleController.text,
-                            content: contentController.text,
-                            date: DateTime.now().toString(),
-                            mood: 0.75,
-                            userId: userProvider.user!.uid);
+                        // notesProvider.addNote(
+                        //     title: titleController.text,
+                        //     content: contentController.text,
+                        //     date: DateTime.now().toString(),
+                        //     mood: 0.75,
+                        //     userId: userProvider.user!.uid);
                         Navigator.pop(context);
                       },
                       child: Container(
@@ -334,12 +334,12 @@ Future<void> showEmotionDialog(
                     ),
                     InkWell(
                       onTap: () {
-                        notesProvider.addNote(
-                            title: titleController.text,
-                            content: contentController.text,
-                            date: DateTime.now().toString(),
-                            mood: 0.25,
-                            userId: userProvider.user!.uid);
+                        // notesProvider.addNote(
+                        //     title: titleController.text,
+                        //     content: contentController.text,
+                        //     date: DateTime.now().toString(),
+                        //     mood: 0.25,
+                        //     userId: userProvider.user!.uid);
                         Navigator.pop(context);
                       },
                       child: Container(
@@ -354,12 +354,12 @@ Future<void> showEmotionDialog(
                     ),
                     InkWell(
                       onTap: () {
-                        notesProvider.addNote(
-                            title: titleController.text,
-                            content: contentController.text,
-                            date: DateTime.now().toString(),
-                            mood: 0.5,
-                            userId: userProvider.user!.uid);
+                        // notesProvider.addNote(
+                        //     title: titleController.text,
+                        //     content: contentController.text,
+                        //     date: DateTime.now().toString(),
+                        //     mood: 0.5,
+                        //     userId: userProvider.user!.uid);
                         Navigator.pop(context);
                       },
                       child: Container(

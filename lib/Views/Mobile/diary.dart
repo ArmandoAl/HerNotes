@@ -1,5 +1,6 @@
 import 'package:first/Views/Mobile/notePage.dart';
 import 'package:first/provider/notes_provider.dart';
+import 'package:first/provider/user_provider.dart';
 import 'package:first/widgets/drawer.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -7,7 +8,8 @@ import 'package:provider/provider.dart';
 import '../../widgets/header.dart';
 
 class DiarioView extends StatefulWidget {
-  const DiarioView({super.key});
+  final UserProvider? userProvider;
+  const DiarioView({super.key, this.userProvider});
 
   @override
   State<DiarioView> createState() => _DiarioViewState();
@@ -20,7 +22,14 @@ class _DiarioViewState extends State<DiarioView> {
 
   @override
   Widget build(BuildContext context) {
-    final notesProvider = Provider.of<NotesProvider>(context, listen: true);
+    final notesProvider = Provider.of<NotesProvider>(context);
+
+    if (notesProvider.loading) {
+      notesProvider.getNotes(widget.userProvider!.user!.id!);
+      return const Center(
+        child: CircularProgressIndicator(),
+      );
+    }
 
     return Scaffold(
       appBar: const HeaderWidget(),
@@ -38,8 +47,8 @@ class _DiarioViewState extends State<DiarioView> {
             final note = notesProvider.notes[index];
             return ListTile(
               title: Text(note.title),
-              subtitle: Text(note.content),
-              trailing: Text(note.mood.toString()),
+              subtitle: Text(note.content.texto!),
+              trailing: Text(note.emociones![0].tipo.toString()),
             );
           }
         },
