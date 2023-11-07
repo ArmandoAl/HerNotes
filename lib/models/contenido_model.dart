@@ -1,11 +1,11 @@
 class ContenidoModel {
-  int id;
+  int? id;
   String? texto;
   String? imagenUrl;
   String? notaDeVozUrl;
 
   ContenidoModel({
-    required this.id,
+    this.id,
     this.texto,
     this.imagenUrl,
     this.notaDeVozUrl,

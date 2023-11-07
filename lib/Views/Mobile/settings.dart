@@ -28,8 +28,9 @@ class _ConfiguracionViewState extends State<ConfiguracionView> {
     ThemeProvider theme = Provider.of<ThemeProvider>(context);
     return Scaffold(
       appBar: const HeaderWidget(),
-      drawer: const DrawerWidget(
+      drawer: DrawerWidget(
         currentPage: 'Settings',
+        userProvider: user,
       ),
       body: Container(
         padding: const EdgeInsets.all(25),
@@ -48,8 +49,8 @@ class _ConfiguracionViewState extends State<ConfiguracionView> {
             const SizedBox(
               height: 50,
             ),
-            _userSettings(
-                user.getUser!.name.toString(), user.getUser!.email.toString()),
+            _userSettings(user.getUser!.user.name.toString(),
+                user.getUser!.user.email.toString()),
             const SizedBox(
               height: 80,
             ),

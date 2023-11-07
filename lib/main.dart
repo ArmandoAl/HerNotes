@@ -1,9 +1,8 @@
-import 'package:first/Views/Mobile/diary.dart';
-import 'package:first/Views/Mobile/homeView.dart';
-import 'package:first/Views/Mobile/progress.dart';
-import 'package:first/Views/Mobile/settings.dart';
-import 'package:first/Views/guia.dart';
+import 'package:first/guia.dart';
+import 'package:first/provider/doctor_provider.dart';
+import 'package:first/provider/emotions_provider.dart';
 import 'package:first/provider/notes_provider.dart';
+import 'package:first/provider/paciente_provider.dart';
 import 'package:first/provider/user_provider.dart';
 import 'package:first/utils/theme_provider.dart';
 import 'package:flutter/material.dart';
@@ -30,21 +29,15 @@ class MyApp extends StatelessWidget {
             create: (_) => UserProvider(storage: storage)..getStorage()),
         ChangeNotifierProvider(create: (_) => ThemeProvider()),
         ChangeNotifierProvider(create: (_) => NotesProvider()),
+        ChangeNotifierProvider(create: (_) => EmotionProvider()),
+        ChangeNotifierProvider(create: (_) => DoctorProvider()),
+        ChangeNotifierProvider(create: (_) => PacienteProvider()),
       ],
-      child: MaterialApp(
+      child: const MaterialApp(
           // Resto del código
           title: 'Flutter Demo',
           debugShowCheckedModeBanner: false,
-          routes: {
-            '/homeView': (context) => const HomeView(),
-            '/login': (context) => const GuiaView(),
-            '/registro': (context) => const GuiaView(),
-            '/settings': (context) => const ConfiguracionView(),
-            '/progress': (context) => const ProgresoView(),
-            '/diary': (context) => const DiarioView(),
-            '/home': (context) => const GuiaView(),
-          },
-          home: const GuiaView()),
+          home: GuiaView()),
     );
   }
 }

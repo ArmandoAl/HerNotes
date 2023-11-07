@@ -1,10 +1,10 @@
 // ignore_for_file: avoid_print
-import 'package:first/Views/Mobile/diary.dart';
+import 'package:first/setterView.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import '../provider/user_provider.dart';
-import 'Mobile/login.dart';
+import 'provider/user_provider.dart';
+import 'Views/Mobile/login.dart';
 
 class GuiaView extends StatefulWidget {
   const GuiaView({
@@ -32,7 +32,7 @@ class _GuiaViewState extends State<GuiaView> {
     if (userProvider.user == null) {
       return const LoginView();
     } else {
-      return DiarioView(userProvider: userProvider);
+      return SetterView(userProvider: userProvider);
     }
   }
 }

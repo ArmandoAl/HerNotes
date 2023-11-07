@@ -1,14 +1,17 @@
 // ignore_for_file: file_names, use_build_context_synchronously
-
 import 'package:first/models/contenido_model.dart';
+import 'package:first/models/emocion_model.dart';
+import 'package:first/models/notes_model.dart';
+import 'package:first/provider/emotions_provider.dart';
 import 'package:first/provider/notes_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../../provider/user_provider.dart';
 
 class WriteNotePage extends StatefulWidget {
-  const WriteNotePage({super.key});
-
+  final int userId;
+  final NotesProvider? notesProvider;
+  const WriteNotePage({Key? key, required this.userId, this.notesProvider})
+      : super(key: key);
   @override
   State<WriteNotePage> createState() => _WriteNotePageState();
 }
@@ -20,56 +23,59 @@ class _WriteNotePageState extends State<WriteNotePage> {
 
   @override
   Widget build(BuildContext context) {
-    final userProvider = Provider.of<UserProvider>(context);
-    final notesProvider = Provider.of<NotesProvider>(context);
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Escribe una nota'),
+        title: const Text(''),
       ),
-      body: Container(
-        margin: const EdgeInsets.all(10),
-        child: Column(
-          children: [
-            TextField(
-              controller: titleController,
-              decoration: const InputDecoration(
-                hintText: 'Título',
-                disabledBorder: InputBorder.none,
-              ),
-            ),
-            Expanded(
-              child: TextField(
-                controller: contentController,
-                maxLines: null,
-                decoration: const InputDecoration(
-                  hintText: 'Contenido',
-                  disabledBorder: InputBorder.none,
-                  border: InputBorder.none,
-                ),
-              ),
-            ),
-            Row(
+      body: Consumer<EmotionProvider>(
+        builder: (context, emotionProvider, child) {
+          if (emotionProvider.emotions.isEmpty) {
+            emotionProvider.getEmotions();
+            return const Center(
+              child: CircularProgressIndicator(),
+            );
+          }
+
+          return Container(
+            margin: const EdgeInsets.all(10),
+            child: Column(
               children: [
-                const Spacer(),
-                Container(
-                  margin: const EdgeInsets.all(10),
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(20),
-                    color: Colors.blue,
+                TextField(
+                  controller: titleController,
+                  decoration: const InputDecoration(
+                    hintText: 'Título',
+                    disabledBorder: InputBorder.none,
+                    border: InputBorder.none,
                   ),
-                  child: IconButton(
-                      onPressed: () async {
-                        await showEmotionDialog(context, notesProvider,
-                            userProvider, titleController, contentController);
-                        notesProvider.move();
-                        Navigator.pop(context);
-                      },
-                      icon: const Icon(Icons.save)),
+                ),
+                Expanded(
+                  child: TextField(
+                    controller: contentController,
+                    maxLines: null,
+                    decoration: const InputDecoration(
+                      hintText: 'Contenido',
+                      disabledBorder: InputBorder.none,
+                      border: InputBorder.none,
+                    ),
+                  ),
                 ),
               ],
-            )
-          ],
-        ),
+            ),
+          );
+        },
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () async {
+          await showEmotionDialog(
+            context,
+            widget.notesProvider!,
+            widget.userId,
+            titleController,
+            contentController,
+          );
+          Navigator.pop(context);
+        },
+        child: const Icon(Icons.save),
       ),
     );
   }
@@ -78,307 +84,107 @@ class _WriteNotePageState extends State<WriteNotePage> {
 Future<void> showEmotionDialog(
   BuildContext context,
   NotesProvider notesProvider,
-  UserProvider userProvider,
+  int userId,
   TextEditingController titleController,
   TextEditingController contentController,
 ) {
+  List<EmocionModel> emociones = [];
+
   return showDialog(
-      context: context,
-      builder: (context) {
-        return AlertDialog(
-          title: const Text('¿Cómo te sientes?'),
-          content: SizedBox(
-            height: 200,
-            width: MediaQuery.of(context).size.width * 0.8,
-            child: Column(
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceAround,
-                  children: [
-                    InkWell(
-                      onTap: () {
-                        notesProvider.addNote(
-                            title: titleController.text,
-                            content: ContenidoModel(
-                                id: 2, texto: contentController.text),
-                            userId: userProvider.user!.id.toString());
-                        Navigator.pop(context);
-                      },
-                      child: Container(
-                        padding: const EdgeInsets.all(10),
-                        width: MediaQuery.of(context).size.width * 0.2,
-                        color: Colors.orange,
-                        child: const Center(
-                          child: Text(
-                            "Feliz",
-                            style: TextStyle(fontSize: 11, color: Colors.white),
-                          ),
+    context: context,
+    builder: (context) {
+      return Consumer<EmotionProvider>(
+        builder: (context, emotionProvider, child) {
+          return AlertDialog(
+            title: const Text('¿Cómo te sientes?'),
+            content: Container(
+              decoration: const BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.all(Radius.circular(10)),
+              ),
+              child: Wrap(
+                alignment: WrapAlignment.center,
+                spacing: 8.0,
+                runSpacing: 8.0,
+                children: emotionProvider.emotions.map((emocion) {
+                  return InkWell(
+                    onTap: () {
+                      emotionProvider.toggleEmotionSelection(
+                          emocion.id, emociones);
+                    },
+                    child: Container(
+                      padding: const EdgeInsets.all(10),
+                      width: MediaQuery.of(context).size.width * 0.2,
+                      decoration: BoxDecoration(
+                        color: emocion.selected ? Colors.blue : Colors.grey,
+                        borderRadius: const BorderRadius.all(
+                          Radius.circular(10),
+                        ),
+                      ),
+                      child: Center(
+                        child: Text(
+                          emocion.tipo,
+                          style: const TextStyle(
+                              fontSize: 11, color: Colors.white),
                         ),
                       ),
                     ),
-                    InkWell(
-                      onTap: () {
-                        // notesProvider.addNote(
-                        //     title: titleController.text,
-                        //     content: contentController.text,
-                        //     date: DateTime.now().toString(),
-                        //     mood: 5,
-                        //     userId: userProvider.user!.uid);
-                        Navigator.pop(context);
-                      },
-                      child: Container(
-                        padding: const EdgeInsets.all(10),
-                        width: MediaQuery.of(context).size.width * 0.2,
-                        color: const Color.fromARGB(255, 98, 100, 102),
-                        child: const Center(
-                          child: Text(
-                            "Indiferente",
-                            style: TextStyle(fontSize: 11, color: Colors.white),
-                          ),
-                        ),
-                      ),
-                    ),
-                    InkWell(
-                      onTap: () {
-                        // notesProvider.addNote(
-                        //     title: titleController.text,
-                        //     content: contentController.text,
-                        //     date: DateTime.now().toString(),
-                        //     mood: 0,
-                        //     userId: userProvider.user!.uid);
-                        Navigator.pop(context);
-                      },
-                      child: Container(
-                        padding: const EdgeInsets.all(10),
-                        width: MediaQuery.of(context).size.width * 0.2,
-                        color: Colors.blue,
-                        child: const Center(
-                          child: Text(
-                            "Triste",
-                            style: TextStyle(fontSize: 11, color: Colors.white),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-                SizedBox(height: MediaQuery.of(context).size.height * 0.02),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceAround,
-                  children: [
-                    InkWell(
-                      onTap: () {
-                        // notesProvider.addNote(
-                        //     title: titleController.text,
-                        //     content: contentController.text,
-                        //     date: DateTime.now().toString(),
-                        //     mood: 0.75,
-                        //     userId: userProvider.user!.uid);
-                        Navigator.pop(context);
-                      },
-                      child: Container(
-                        padding: const EdgeInsets.all(10),
-                        width: MediaQuery.of(context).size.width * 0.2,
-                        color: Colors.red,
-                        child: const Center(
-                          child: Text(
-                            "Enojado",
-                            style: TextStyle(fontSize: 11, color: Colors.white),
-                          ),
-                        ),
-                      ),
-                    ),
-                    InkWell(
-                      onTap: () {
-                        // notesProvider.addNote(
-                        //     title: titleController.text,
-                        //     content: contentController.text,
-                        //     date: DateTime.now().toString(),
-                        //     mood: 0.25,
-                        //     userId: userProvider.user!.uid);
-                        Navigator.pop(context);
-                      },
-                      child: Container(
-                        padding: const EdgeInsets.all(10),
-                        width: MediaQuery.of(context).size.width * 0.2,
-                        color: Colors.blue,
-                        child: const Center(
-                          child: Text(
-                            "Estresado",
-                            style: TextStyle(fontSize: 11, color: Colors.white),
-                          ),
-                        ),
-                      ),
-                    ),
-                    InkWell(
-                      onTap: () {
-                        // notesProvider.addNote(
-                        //     title: titleController.text,
-                        //     content: contentController.text,
-                        //     date: DateTime.now().toString(),
-                        //     mood: 0.5,
-                        //     userId: userProvider.user!.uid);
-                        Navigator.pop(context);
-                      },
-                      child: Container(
-                        padding: const EdgeInsets.all(10),
-                        width: MediaQuery.of(context).size.width * 0.2,
-                        color: Colors.red,
-                        child: const Center(
-                          child: Text(
-                            "Ansioso",
-                            style: TextStyle(fontSize: 11, color: Colors.white),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-                SizedBox(height: MediaQuery.of(context).size.height * 0.02),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceAround,
-                  children: [
-                    InkWell(
-                      onTap: () {
-                        // notesProvider.addNote(
-                        //     title: titleController.text,
-                        //     content: contentController.text,
-                        //     date: DateTime.now().toString(),
-                        //     mood: 0.75,
-                        //     userId: userProvider.user!.uid);
-                        Navigator.pop(context);
-                      },
-                      child: Container(
-                        padding: const EdgeInsets.all(10),
-                        width: MediaQuery.of(context).size.width * 0.2,
-                        color: Colors.pink,
-                        child: const Center(
-                          child: Text(
-                            "Enamorado",
-                            style: TextStyle(fontSize: 11, color: Colors.white),
-                          ),
-                        ),
-                      ),
-                    ),
-                    InkWell(
-                      onTap: () {
-                        // notesProvider.addNote(
-                        //     title: titleController.text,
-                        //     content: contentController.text,
-                        //     date: DateTime.now().toString(),
-                        //     mood: 0.25,
-                        //     userId: userProvider.user!.uid);
-                        Navigator.pop(context);
-                      },
-                      child: Container(
-                        padding: const EdgeInsets.all(10),
-                        width: MediaQuery.of(context).size.width * 0.2,
-                        color: Colors.green,
-                        child: const Center(
-                          child: Text(
-                            "Confundido",
-                            style: TextStyle(fontSize: 11, color: Colors.white),
-                          ),
-                        ),
-                      ),
-                    ),
-                    InkWell(
-                      onTap: () {
-                        // notesProvider.addNote(
-                        //     title: titleController.text,
-                        //     content: contentController.text,
-                        //     date: DateTime.now().toString(),
-                        //     mood: 0.5,
-                        //     userId: userProvider.user!.uid);
-                        Navigator.pop(context);
-                      },
-                      child: Container(
-                        padding: const EdgeInsets.all(10),
-                        width: MediaQuery.of(context).size.width * 0.2,
-                        color: Colors.blue,
-                        child: const Center(
-                          child: Text(
-                            "Aburrido",
-                            style: TextStyle(fontSize: 11, color: Colors.white),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-                SizedBox(height: MediaQuery.of(context).size.height * 0.02),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceAround,
-                  children: [
-                    InkWell(
-                      onTap: () {
-                        // notesProvider.addNote(
-                        //     title: titleController.text,
-                        //     content: contentController.text,
-                        //     date: DateTime.now().toString(),
-                        //     mood: 0.75,
-                        //     userId: userProvider.user!.uid);
-                        Navigator.pop(context);
-                      },
-                      child: Container(
-                        padding: const EdgeInsets.all(10),
-                        width: MediaQuery.of(context).size.width * 0.2,
-                        color: Colors.black,
-                        child: const Center(
-                          child: Text(
-                            "Asustado",
-                            style: TextStyle(fontSize: 11, color: Colors.white),
-                          ),
-                        ),
-                      ),
-                    ),
-                    InkWell(
-                      onTap: () {
-                        // notesProvider.addNote(
-                        //     title: titleController.text,
-                        //     content: contentController.text,
-                        //     date: DateTime.now().toString(),
-                        //     mood: 0.25,
-                        //     userId: userProvider.user!.uid);
-                        Navigator.pop(context);
-                      },
-                      child: Container(
-                        padding: const EdgeInsets.all(10),
-                        width: MediaQuery.of(context).size.width * 0.2,
-                        color: Colors.purple,
-                        child: const Center(
-                          child:
-                              Text("Cansado", style: TextStyle(fontSize: 11)),
-                        ),
-                      ),
-                    ),
-                    InkWell(
-                      onTap: () {
-                        // notesProvider.addNote(
-                        //     title: titleController.text,
-                        //     content: contentController.text,
-                        //     date: DateTime.now().toString(),
-                        //     mood: 0.5,
-                        //     userId: userProvider.user!.uid);
-                        Navigator.pop(context);
-                      },
-                      child: Container(
-                        padding: const EdgeInsets.all(10),
-                        width: MediaQuery.of(context).size.width * 0.2,
-                        color: Colors.brown,
-                        child: const Center(
-                          child: Text(
-                            "Avergonzado",
-                            style: TextStyle(fontSize: 11, color: Colors.white),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ],
+                  );
+                }).toList(),
+              ),
             ),
-          ),
-        );
-      });
+            actions: [
+              Container(
+                decoration: const BoxDecoration(
+                  color: Colors.red,
+                  borderRadius: BorderRadius.all(Radius.circular(10)),
+                ),
+                padding: const EdgeInsets.symmetric(horizontal: 10),
+                child: TextButton(
+                  onPressed: () {
+                    emotionProvider.clearEmotions();
+                    emociones.clear();
+                    titleController.clear();
+                    contentController.clear();
+                    Navigator.pop(context);
+                  },
+                  child: const Text('Cancelar',
+                      style: TextStyle(color: Colors.white)),
+                ),
+              ),
+              Container(
+                decoration: const BoxDecoration(
+                  color: Colors.blue,
+                  borderRadius: BorderRadius.all(Radius.circular(10)),
+                ),
+                padding: const EdgeInsets.symmetric(horizontal: 10),
+                child: TextButton(
+                  onPressed: () async {
+                    await notesProvider.addNote(
+                      note: NotesModel(
+                        title: titleController.text,
+                        content: ContenidoModel(
+                          texto: contentController.text,
+                        ),
+                        emociones: emociones,
+                      ),
+                      userId: userId,
+                    );
+                    notesProvider.move();
+                    titleController.clear();
+                    contentController.clear();
+                    emotionProvider.clearEmotions();
+                    emociones.clear();
+                    Navigator.pop(context);
+                  },
+                  child: const Text('Guardar',
+                      style: TextStyle(color: Colors.white)),
+                ),
+              ),
+            ],
+          );
+        },
+      );
+    },
+  );
 }

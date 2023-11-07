@@ -1,6 +1,10 @@
 // ignore_for_file: avoid_print, use_build_context_synchronously, duplicate_ignore
+import 'package:first/Views/Mobile/diary.dart';
+import 'package:first/Views/Mobile/listOfUsersView.dart';
 import 'package:first/Views/Mobile/singUp.dart';
 import 'package:first/models/login_model.dart';
+import 'package:first/models/model_for_control_usertype.dart';
+import 'package:first/provider/doctor_provider.dart';
 import 'package:first/provider/user_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -17,25 +21,30 @@ class _LoginViewState extends State<LoginView> {
   TextEditingController emailController = TextEditingController();
   TextEditingController passwordController = TextEditingController();
 
-  void login(BuildContext context, UserProvider userProvider) async {
-    setState(() {
-      loading = true;
-    });
-
+  void login(BuildContext context, UserProvider userProvider,
+      DoctorProvider doctorProvider) async {
     Login loginModel = Login(
       email: emailController.text,
       password: passwordController.text,
     );
-
-    final response = userProvider.login(loginModel);
-
-    // ignore: unnecessary_null_comparison
+    ModelForControlUsertype? response = await userProvider.login(loginModel);
     if (response != null) {
-      setState(() {
-        loading = false;
-      });
-      // ignore: use_build_context_synchronously
-      Navigator.pushReplacementNamed(context, '/home');
+      if (response.usertype == "paciente") {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+              builder: (context) => DiarioView(
+                    userId: response.user.id,
+                  )),
+        );
+      } else {
+        Navigator.pushReplacement(context,
+            MaterialPageRoute(builder: (context) {
+          return ListOfUsersView(
+            doctorProvider: doctorProvider,
+          );
+        }));
+      }
     } else {
       setState(() {
         loading = false;
@@ -52,8 +61,13 @@ class _LoginViewState extends State<LoginView> {
   Widget build(BuildContext context) {
     UserProvider userProvider =
         Provider.of<UserProvider>(context, listen: false);
+    DoctorProvider doctorProvider = Provider.of<DoctorProvider>(context);
     return mobileLogin(context, emailController, passwordController, login,
-        loading, userProvider);
+        loading, userProvider, doctorProvider, () {
+      setState(() {
+        loading = true;
+      });
+    });
   }
 }
 
@@ -63,7 +77,9 @@ Widget mobileLogin(
     TextEditingController passwordController,
     Function login,
     bool loading,
-    UserProvider userProvider) {
+    UserProvider userProvider,
+    DoctorProvider doctorProvider,
+    Function setState) {
   return Scaffold(
       body: Container(
     alignment: Alignment.center,
@@ -97,7 +113,8 @@ Widget mobileLogin(
           ),
           ElevatedButton(
             onPressed: () {
-              login(context, userProvider);
+              setState();
+              login(context, userProvider, doctorProvider);
             },
             style: ElevatedButton.styleFrom(
               padding: const EdgeInsets.all(20),

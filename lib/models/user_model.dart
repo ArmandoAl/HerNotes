@@ -1,18 +1,14 @@
-import 'package:first/models/notes_model.dart';
-
 class UserModel {
   int? id;
   String name;
   String email;
   String password;
-  List<NotesModel>? notas;
 
   UserModel({
     this.id,
     required this.name,
     required this.email,
     required this.password,
-    this.notas,
   });
 
   factory UserModel.fromJson(Map<String, dynamic> doc) {
@@ -21,7 +17,6 @@ class UserModel {
       name: doc['name'],
       email: doc['email'],
       password: doc['password'],
-      notas: [],
     );
   }
 
@@ -31,7 +26,6 @@ class UserModel {
       'name': name,
       'email': email,
       'password': password,
-      'notas': notas,
     };
   }
 }

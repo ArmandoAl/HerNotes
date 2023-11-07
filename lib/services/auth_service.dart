@@ -2,13 +2,14 @@
 import 'dart:convert';
 import 'package:first/config/api_config.dart';
 import 'package:first/models/login_model.dart';
+import 'package:first/models/model_for_control_usertype.dart';
 import 'package:first/models/user_model.dart';
 import 'package:localstorage/localstorage.dart';
 import 'package:http/http.dart' as http;
 
 class AuthService {
   //La funcion recoje los datos del usuario y los guarda en la base de datos
-  Future<UserModel?> singUpUser(
+  Future<ModelForControlUsertype?> singUpUser(
     String email,
     String password,
     String name,
@@ -36,13 +37,7 @@ class AuthService {
               "notas": [],
             });
 
-            return UserModel.fromJson({
-              "id": response.body,
-              "name": userModel.name,
-              "email": userModel.email,
-              "password": userModel.password,
-              "notas": [],
-            });
+            return ModelForControlUsertype.fromJson(jsonDecode(response.body));
           } else {
             print(response.body);
           }
@@ -61,23 +56,23 @@ class AuthService {
   }
 
   //La funcion recoje los datos del usuario y los guarda en la base de datos
-  Future<UserModel?> login(Login loginModel, LocalStorage storage) async {
+  Future<ModelForControlUsertype?> login(
+      Login loginModel, LocalStorage storage) async {
     try {
       if (loginModel.email.isNotEmpty && loginModel.password.isNotEmpty) {
         try {
           final response = await http.post(
-              Uri.parse('https://localhost:7241/Api/Usuario/login'),
+              Uri.parse('$api/Paciente/otherlogin'),
               headers: {
                 'Accept': 'application/json',
                 'Content-Type': 'application/json'
               },
               body: jsonEncode(loginModel.toJson()));
           if (response.statusCode == 200) {
-            print(response.body);
+            final decodedResponse = jsonDecode(response.body);
+            storage.setItem("userStorage", response.body);
 
-            storage.setItem("user", response.body);
-
-            return UserModel.fromJson(jsonDecode(response.body));
+            return ModelForControlUsertype.fromJson(decodedResponse);
           } else {
             print(response.body);
           }
@@ -100,15 +95,15 @@ class AuthService {
   Future<bool> logout(
     LocalStorage storage,
   ) async {
-    storage.deleteItem("user");
+    storage.deleteItem("userStorage");
     return true;
   }
 
-  Future<UserModel?> getStorage(LocalStorage storage) async {
-    final user = await storage.getItem("user");
+  Future<ModelForControlUsertype?> getStorage(LocalStorage storage) async {
+    final user = await storage.getItem("userStorage");
     if (user != null) {
-      print(user);
-      return UserModel.fromJson(jsonDecode(user));
+      final decodedUser = jsonDecode(user);
+      return ModelForControlUsertype.fromJson(decodedUser);
     }
     return null;
   }

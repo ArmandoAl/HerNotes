@@ -2,21 +2,29 @@
 
 import 'dart:convert';
 import 'package:first/config/api_config.dart';
+import 'package:first/models/add_note_model.dart';
+import 'package:first/models/anotaciones_model.dart';
 import 'package:first/models/notes_model.dart';
 import 'package:http/http.dart' as http;
 
 class NoteService {
-  Future<String> addNotes(int userId, NotesModel note) async {
-    if (note.title.isNotEmpty) {
-      if (note.content.texto!.isNotEmpty ||
-          note.content.imagenUrl!.isNotEmpty ||
-          note.content.notaDeVozUrl!.isNotEmpty) {
-        return "Note added";
+  Future<int> addNote(AddNoteModel addNoteModel) async {
+    try {
+      final response = await http.post(Uri.parse('$api/Nota'),
+          headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
+          },
+          body: jsonEncode(addNoteModel.toJson()));
+      if (response.statusCode == 200) {
+        print(response.body);
+        return jsonDecode(response.body);
       } else {
-        return "Please add some content";
+        return 0;
       }
-    } else {
-      return "Please fill the title";
+    } catch (e) {
+      print(e);
+      return 0;
     }
   }
 
@@ -24,7 +32,7 @@ class NoteService {
   Future<List<NotesModel>?> getNotes(int userId) async {
     try {
       final response =
-          await http.get(Uri.parse('$api/Usuario/$userId/notas'), headers: {
+          await http.get(Uri.parse('$api/Paciente/$userId/notas'), headers: {
         'Content-Type': 'application/json',
         'Accept': 'application/json',
       });
@@ -42,9 +50,29 @@ class NoteService {
         return null;
       }
     } catch (e) {
-      print("catch");
+      print("catch notas");
       print(e);
       return null;
+    }
+  }
+
+  Future<void> addNotations(AnotacionesModel model) async {
+    try {
+      final response = await http.put(
+        Uri.parse('$api/Nota/addNotations'),
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+        },
+        body: jsonEncode(model.toJson()),
+      );
+      if (response.statusCode == 200) {
+        print(response.body);
+      } else {
+        print(response.body);
+      }
+    } catch (e) {
+      print(e);
     }
   }
 }

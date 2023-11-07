@@ -5,6 +5,7 @@ class EmocionModel {
   String tipo;
   double valor;
   List<NotesModel>? notas;
+  bool selected = false;
 
   EmocionModel({
     required this.id,
@@ -17,7 +18,7 @@ class EmocionModel {
     return EmocionModel(
       id: json['id'],
       tipo: json['tipo'],
-      valor: json['valor'],
+      valor: json['valor'].toDouble(),
     );
   }
 
