@@ -10,6 +10,7 @@ class NotesProvider with ChangeNotifier {
   final NoteService _noteService = NoteService();
   final List<NotesModel> _notes = [];
   bool loading = true;
+  bool noteLoading = false;
 
   List<NotesModel> get notes => _notes;
 
@@ -25,10 +26,13 @@ class NotesProvider with ChangeNotifier {
       emocionesIds: emocionesIds,
     );
 
-    final id = await _noteService.addNote(addNoteModel);
+    int id = await _noteService.addNote(addNoteModel);
     note.id = id;
+    note.fecha = DateTime.now();
 
     _notes.add(note);
+
+    noteLoading = false;
 
     notifyListeners();
   }
@@ -83,6 +87,11 @@ class NotesProvider with ChangeNotifier {
     for (var element in _notes) {
       element.selected = false;
     }
+    notifyListeners();
+  }
+
+  void noteLoadingChange() {
+    noteLoading = true;
     notifyListeners();
   }
 }

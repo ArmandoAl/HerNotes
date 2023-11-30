@@ -20,8 +20,7 @@ class _AnotationsViewState extends State<AnotationsView> {
 
   @override
   void initState() {
-    anotationsController.text =
-        widget.anotations == null ? "" : widget.anotations!;
+    anotationsController.text = widget.anotations!;
     super.initState();
   }
 

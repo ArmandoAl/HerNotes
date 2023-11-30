@@ -32,13 +32,15 @@ dependencies:
   flutter:
     sdk: flutter
   go_router: ^10.0.0
+  http: null
   intl: ^0.18.1
+  localstorage: null
   provider: ^6.0.5
   table_calendar: ^3.0.9
-  localstorage:
-  http:
 
 dev_dependencies:
+  test:
+  mockito:
   flutter_lints: ^2.0.0
   flutter_test:
     sdk: flutter

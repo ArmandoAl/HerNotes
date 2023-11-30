@@ -8,6 +8,7 @@ class NotesModel {
   String? notaciones;
   List<EmocionModel>? emociones;
   bool selected = false;
+  DateTime? fecha;
 
   NotesModel({
     this.id,
@@ -15,6 +16,7 @@ class NotesModel {
     required this.content,
     this.emociones,
     this.notaciones,
+    this.fecha,
   });
 
   factory NotesModel.fromJson(Map<String, dynamic> doc) {
@@ -27,6 +29,7 @@ class NotesModel {
           ? List<EmocionModel>.from(
               doc['emociones'].map((e) => EmocionModel.fromJson(e)))
           : null,
+      fecha: DateTime.parse(doc['createdDate']),
     );
   }
 

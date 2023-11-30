@@ -4,6 +4,7 @@ import 'package:first/models/emocion_model.dart';
 import 'package:first/models/notes_model.dart';
 import 'package:first/provider/emotions_provider.dart';
 import 'package:first/provider/notes_provider.dart';
+import 'package:first/utils/emocion_colors.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -19,7 +20,7 @@ class WriteNotePage extends StatefulWidget {
 class _WriteNotePageState extends State<WriteNotePage> {
   TextEditingController titleController = TextEditingController();
   TextEditingController contentController = TextEditingController();
-  double mood = 0.0;
+  bool pressed = false;
 
   @override
   Widget build(BuildContext context) {
@@ -66,13 +67,18 @@ class _WriteNotePageState extends State<WriteNotePage> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () async {
+          if (contentController.text.isEmpty) return;
           await showEmotionDialog(
             context,
             widget.notesProvider!,
             widget.userId,
             titleController,
             contentController,
+            () {
+              setState(() {});
+            },
           );
+
           Navigator.pop(context);
         },
         child: const Icon(Icons.save),
@@ -87,6 +93,7 @@ Future<void> showEmotionDialog(
   int userId,
   TextEditingController titleController,
   TextEditingController contentController,
+  Function setState,
 ) {
   List<EmocionModel> emociones = [];
 
@@ -96,43 +103,22 @@ Future<void> showEmotionDialog(
       return Consumer<EmotionProvider>(
         builder: (context, emotionProvider, child) {
           return AlertDialog(
+            backgroundColor: const Color.fromARGB(255, 223, 220, 220),
             title: const Text('¿Cómo te sientes?'),
             content: Container(
-              decoration: const BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.all(Radius.circular(10)),
-              ),
-              child: Wrap(
-                alignment: WrapAlignment.center,
-                spacing: 8.0,
-                runSpacing: 8.0,
-                children: emotionProvider.emotions.map((emocion) {
-                  return InkWell(
-                    onTap: () {
-                      emotionProvider.toggleEmotionSelection(
-                          emocion.id, emociones);
-                    },
-                    child: Container(
-                      padding: const EdgeInsets.all(10),
-                      width: MediaQuery.of(context).size.width * 0.2,
-                      decoration: BoxDecoration(
-                        color: emocion.selected ? Colors.blue : Colors.grey,
-                        borderRadius: const BorderRadius.all(
-                          Radius.circular(10),
-                        ),
-                      ),
-                      child: Center(
-                        child: Text(
-                          emocion.tipo,
-                          style: const TextStyle(
-                              fontSize: 11, color: Colors.white),
-                        ),
-                      ),
+                decoration: const BoxDecoration(
+                  color: Colors.transparent,
+                  borderRadius: BorderRadius.all(Radius.circular(15)),
+                ),
+                child: SizedBox(
+                  height: MediaQuery.of(context).size.height * 0.4,
+                  child: SingleChildScrollView(
+                    child: Column(
+                      children:
+                          _emotionList(context, emotionProvider, emociones),
                     ),
-                  );
-                }).toList(),
-              ),
-            ),
+                  ),
+                )),
             actions: [
               Container(
                 decoration: const BoxDecoration(
@@ -158,27 +144,39 @@ Future<void> showEmotionDialog(
                   borderRadius: BorderRadius.all(Radius.circular(10)),
                 ),
                 padding: const EdgeInsets.symmetric(horizontal: 10),
-                child: TextButton(
-                  onPressed: () async {
-                    await notesProvider.addNote(
-                      note: NotesModel(
-                        title: titleController.text,
-                        content: ContenidoModel(
-                          texto: contentController.text,
-                        ),
-                        emociones: emociones,
-                      ),
-                      userId: userId,
+                child: Consumer<NotesProvider>(
+                  builder: (context, notesProvider, child) {
+                    if (notesProvider.noteLoading) {
+                      return const CircularProgressIndicator(
+                        color: Colors.white,
+                      );
+                    }
+                    return TextButton(
+                      onPressed: () async {
+                        if (contentController.text.isEmpty) return;
+                        notesProvider.noteLoadingChange();
+                        await notesProvider.addNote(
+                          note: NotesModel(
+                            title: titleController.text,
+                            content: ContenidoModel(
+                              texto: contentController.text,
+                            ),
+                            emociones: emociones,
+                          ),
+                          userId: userId,
+                        );
+                        setState();
+                        notesProvider.move();
+                        titleController.clear();
+                        contentController.clear();
+                        emotionProvider.clearEmotions();
+                        emociones.clear();
+                        Navigator.pop(context);
+                      },
+                      child: const Text('Guardar',
+                          style: TextStyle(color: Colors.white)),
                     );
-                    notesProvider.move();
-                    titleController.clear();
-                    contentController.clear();
-                    emotionProvider.clearEmotions();
-                    emociones.clear();
-                    Navigator.pop(context);
                   },
-                  child: const Text('Guardar',
-                      style: TextStyle(color: Colors.white)),
                 ),
               ),
             ],
@@ -187,4 +185,70 @@ Future<void> showEmotionDialog(
       );
     },
   );
+}
+
+Map<String, List<EmocionModel>> groupEmotionsByBase(
+    List<EmocionModel> emotions) {
+  final groupedEmotions = <String, List<EmocionModel>>{};
+
+  for (final emotion in emotions) {
+    final baseEmotion = emotion.emocionBase;
+    if (!groupedEmotions.containsKey(baseEmotion)) {
+      groupedEmotions[baseEmotion] = [];
+    }
+    groupedEmotions[baseEmotion]!.add(emotion);
+  }
+
+  return groupedEmotions;
+}
+
+List<Widget> _emotionList(BuildContext context, EmotionProvider emotionProvider,
+    List<EmocionModel> emocionesList) {
+  List<Widget> list = [];
+
+  // Agrupa las emociones por emoción base
+  final groupedEmotions = groupEmotionsByBase(emotionProvider.emotions);
+
+  groupedEmotions.forEach((baseEmotion, emotions) {
+    list.add(
+      Column(
+        children: [
+          SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            child: Row(
+              children: emotions.map((emotion) {
+                return GestureDetector(
+                  onTap: () {
+                    emotionProvider.toggleEmotionSelection(
+                      emotion.id,
+                      emocionesList,
+                    );
+                  },
+                  child: Container(
+                    margin: const EdgeInsets.all(8),
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: emotion.selected
+                          ? Colors.black
+                          : emotionColors[emotion.emocionBase]!
+                              .withOpacity(0.9),
+                      borderRadius: BorderRadius.circular(8),
+                      border: null,
+                    ),
+                    child: Text(emotion.tipo,
+                        style: TextStyle(
+                            color:
+                                emotion.selected ? Colors.white : Colors.black,
+                            fontWeight: FontWeight.bold)),
+                  ),
+                );
+              }).toList(),
+            ),
+          ),
+        ],
+      ),
+    );
+  });
+
+  return list;
 }

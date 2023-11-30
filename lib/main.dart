@@ -34,8 +34,7 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => PacienteProvider()),
       ],
       child: const MaterialApp(
-          // Resto del código
-          title: 'Flutter Demo',
+          title: 'HerNotes',
           debugShowCheckedModeBanner: false,
           home: GuiaView()),
     );

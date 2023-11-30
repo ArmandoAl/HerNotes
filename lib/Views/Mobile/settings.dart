@@ -80,7 +80,7 @@ class _ConfiguracionViewState extends State<ConfiguracionView> {
             const SizedBox(
               height: 50,
             ),
-            _itemSettings(user, const Icon(Icons.logout), "Serrar sesión",
+            _itemSettings(user, const Icon(Icons.logout), "Cerrar sesión",
                 const Color.fromRGBO(146, 146, 146, 1), theme),
           ],
         ),
@@ -185,7 +185,7 @@ class _ConfiguracionViewState extends State<ConfiguracionView> {
         const Spacer(),
         IconButton(
             onPressed: () {
-              if (text == "Serrar sesión") {
+              if (text == "Cerrar sesión") {
                 logout(context, user);
               }
               if (text == "Dark Mode") {

@@ -6,7 +6,8 @@ class ThemeProvider extends ChangeNotifier {
     'textColor': Colors.black,
     'iconColorLight': const Color.fromRGBO(47, 137, 252, 1),
     'iconColorDark': Colors.black,
-    'drawerColor': const Color.fromARGB(255, 41, 141, 228)
+    'drawerColor': const Color.fromARGB(255, 41, 141, 228),
+    'cardColor': Colors.white70,
   };
 
   final dark = {
@@ -14,7 +15,8 @@ class ThemeProvider extends ChangeNotifier {
     'textColor': Colors.white,
     'iconColorLight': const Color.fromRGBO(47, 137, 252, 1),
     'iconColorDark': Colors.white,
-    'drawerColor': const Color.fromARGB(255, 33, 33, 33)
+    'drawerColor': const Color.fromARGB(255, 33, 33, 33),
+    'cardColor': Colors.black54,
   };
 
   bool isDarkModeEnabled = false;

@@ -1,11 +1,11 @@
 // ignore_for_file: avoid_print, use_build_context_synchronously, duplicate_ignore
-import 'package:first/Views/Mobile/diary.dart';
-import 'package:first/Views/Mobile/listOfUsersView.dart';
 import 'package:first/Views/Mobile/singUp.dart';
 import 'package:first/models/login_model.dart';
 import 'package:first/models/model_for_control_usertype.dart';
 import 'package:first/provider/doctor_provider.dart';
 import 'package:first/provider/user_provider.dart';
+import 'package:first/setterView.dart';
+import 'package:first/utils/validateEmailFuction.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -23,28 +23,39 @@ class _LoginViewState extends State<LoginView> {
 
   void login(BuildContext context, UserProvider userProvider,
       DoctorProvider doctorProvider) async {
+    if (emailController.text.isEmpty || passwordController.text.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+        content: Text("Por favor, llene todos los campos"),
+      ));
+      setState(() {
+        loading = false;
+      });
+      return;
+    }
+
+    if (validateEmail(emailController.text) == false) {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+        content: Text("Por favor, ingrese un correo válido"),
+      ));
+      setState(() {
+        loading = false;
+      });
+      return;
+    }
+
     Login loginModel = Login(
       email: emailController.text,
       password: passwordController.text,
     );
     ModelForControlUsertype? response = await userProvider.login(loginModel);
     if (response != null) {
-      if (response.usertype == "paciente") {
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(
-              builder: (context) => DiarioView(
-                    userId: response.user.id,
-                  )),
-        );
-      } else {
-        Navigator.pushReplacement(context,
-            MaterialPageRoute(builder: (context) {
-          return ListOfUsersView(
-            doctorProvider: doctorProvider,
-          );
-        }));
-      }
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+            builder: (context) => SetterView(
+                  userProvider: userProvider,
+                )),
+      );
     } else {
       setState(() {
         loading = false;

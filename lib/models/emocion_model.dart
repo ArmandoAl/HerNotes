@@ -6,12 +6,14 @@ class EmocionModel {
   double valor;
   List<NotesModel>? notas;
   bool selected = false;
+  String emocionBase;
 
   EmocionModel({
     required this.id,
     required this.tipo,
     required this.valor,
     this.notas,
+    required this.emocionBase,
   });
 
   factory EmocionModel.fromJson(Map<String, dynamic> json) {
@@ -19,6 +21,7 @@ class EmocionModel {
       id: json['id'],
       tipo: json['tipo'],
       valor: json['valor'].toDouble(),
+      emocionBase: json['emocionBase'],
     );
   }
 
@@ -27,6 +30,7 @@ class EmocionModel {
       'id': id,
       'tipo': tipo,
       'valor': valor,
+      'emocionBase': emocionBase,
     };
   }
 }
