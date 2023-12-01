@@ -1,5 +1,3 @@
-import 'dart:convert';
-import 'package:first/models/complete_user_model.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:first/services/auth_service.dart';
 import 'package:first/models/login_model.dart';
@@ -15,7 +13,8 @@ void main() {
       // Arrange
       final authService = AuthService();
       final storage = MockLocalStorage();
-      final loginModel = Login(email: "lauraemail", password: "laurapassword");
+      final loginModel =
+          Login(email: "laura@gmail.com", password: "laurapassword");
 
       // Go to authService.dart line 73 and coment the storage.setItem line
       final result = await authService.login(loginModel, storage);
@@ -23,6 +22,8 @@ void main() {
       // Assert
       expect(result, isNotNull);
       expect(result!.user, isNotNull);
+      //deberia ser un model_for_control_usertype
+      expect(result, isA<ModelForControlUsertype>());
     });
 
     test('GetStorage - User Not Found', () async {
