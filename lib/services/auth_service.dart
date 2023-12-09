@@ -71,7 +71,7 @@ class AuthService {
           if (response.statusCode == 200) {
             final decodedResponse = jsonDecode(response.body);
             //coment this line for testing
-            storage.setItem("userStorage", response.body);
+            //storage.setItem("userStorage", response.body);
 
             return ModelForControlUsertype.fromJson(decodedResponse);
           } else {
