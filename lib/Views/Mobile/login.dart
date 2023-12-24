@@ -1,4 +1,4 @@
-// ignore_for_file: avoid_print, use_build_context_synchronously, duplicate_ignore
+// ignore_for_file: avoid_print, use_build_context_synchronously, duplicate_ignore, unused_import
 import 'package:first/Views/Mobile/singUp.dart';
 import 'package:first/models/login_model.dart';
 import 'package:first/models/model_for_control_usertype.dart';
@@ -33,7 +33,7 @@ class _LoginViewState extends State<LoginView> {
       return;
     }
 
-    if (validateEmail(emailController.text) == false) {
+    if (validateEmail(emailController.text.trim()) == false) {
       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
         content: Text("Por favor, ingrese un correo válido"),
       ));
@@ -44,8 +44,8 @@ class _LoginViewState extends State<LoginView> {
     }
 
     Login loginModel = Login(
-      email: emailController.text,
-      password: passwordController.text,
+      email: emailController.text.trim(),
+      password: passwordController.text.trim(),
     );
     ModelForControlUsertype? response = await userProvider.login(loginModel);
     if (response != null) {
@@ -68,13 +68,20 @@ class _LoginViewState extends State<LoginView> {
     }
   }
 
+  void changeControllerContent(String email, String password) {
+    setState(() {
+      emailController.text = email;
+      passwordController.text = password;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     UserProvider userProvider =
         Provider.of<UserProvider>(context, listen: false);
     DoctorProvider doctorProvider = Provider.of<DoctorProvider>(context);
     return mobileLogin(context, emailController, passwordController, login,
-        loading, userProvider, doctorProvider, () {
+        loading, userProvider, doctorProvider, changeControllerContent, () {
       setState(() {
         loading = true;
       });
@@ -90,6 +97,7 @@ Widget mobileLogin(
     bool loading,
     UserProvider userProvider,
     DoctorProvider doctorProvider,
+    Function changeControllerContent,
     Function setState) {
   return Scaffold(
       body: Container(
@@ -103,27 +111,40 @@ Widget mobileLogin(
       Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: <Widget>[
-          const SizedBox(
-            height: 50,
+          SizedBox(
+            height: MediaQuery.of(context).size.height * 0.05,
           ),
           SizedBox(
             width: 150,
             height: 150,
             child: Image.asset("lib/images/her_head.png"),
           ),
-          const SizedBox(
-            height: 50,
+          SizedBox(
+            height: MediaQuery.of(context).size.height * 0.05,
           ),
-          textFieldWidget(context, "Correo electrónico", emailController),
-          const SizedBox(
-            height: 40,
-          ),
-          textFieldWidget(context, "Contraseña", passwordController),
-          const SizedBox(
-            height: 50,
+          // textFieldWidget(context, "Correo electrónico", emailController),
+          // const SizedBox(
+          //   height: 40,
+          // ),
+          // textFieldWidget(context, "Contraseña", passwordController),
+          // const SizedBox(
+          //   height: 50,
+          // ),
+          Padding(
+            padding: EdgeInsets.all(MediaQuery.of(context).size.width * 0.05),
+            child: Text(
+              "Hola, si estas viendo esto es porque vienes de linkedin o de mi portafolio, asi que muchas gracias por interesarte en mi trabajo, esta aplicacion tiene un uso real, pero para fines practicos, puedes iniciar sesion con de manera rapida con estos usuarios de prueba",
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                  fontSize: MediaQuery.of(context).size.width * 0.025),
+            ),
           ),
           ElevatedButton(
             onPressed: () {
+              changeControllerContent(
+                "test@gmail.com",
+                "test",
+              );
               setState();
               login(context, userProvider, doctorProvider);
             },
@@ -138,40 +159,39 @@ Widget mobileLogin(
             child: loading
                 ? const CircularProgressIndicator()
                 : const Text(
-                    "Iniciar sesión",
+                    "Iniciar como paciente",
                     style: TextStyle(
                       fontSize: 20,
                     ),
                   ),
           ),
-          const SizedBox(
-            height: 35,
+          SizedBox(
+            height: MediaQuery.of(context).size.height * 0.05,
           ),
-          const Text(
-            "¿No tienes cuenta?",
-            style: TextStyle(
-              color: Color.fromRGBO(30, 82, 84, 1),
-              fontSize: 20,
+          ElevatedButton(
+            onPressed: () {
+              changeControllerContent("laura@gmail.com", "laurapassword");
+              setState();
+              login(context, userProvider, doctorProvider);
+            },
+            style: ElevatedButton.styleFrom(
+              padding: const EdgeInsets.all(20),
+              foregroundColor: Colors.white,
+              backgroundColor: const Color.fromRGBO(63, 202, 206, 1),
+              shape: const RoundedRectangleBorder(
+                borderRadius: BorderRadius.all(Radius.circular(15)),
+              ),
+            ),
+            child: const Text(
+              "Iniciar como doctor",
+              style: TextStyle(
+                fontSize: 20,
+              ),
             ),
           ),
           const SizedBox(
-            height: 10,
+            height: 35,
           ),
-          TextButton(
-              onPressed: () {
-                // ignore: use_build_context_synchronously
-                Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (context) => const SingUpView()));
-              },
-              child: const Text(
-                "Regístrate",
-                style: TextStyle(
-                  color: Color.fromRGBO(63, 202, 206, 1),
-                  fontSize: 20,
-                ),
-              )),
         ],
       ),
     ]),

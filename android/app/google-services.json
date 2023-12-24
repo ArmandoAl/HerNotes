@@ -1,36 +1,26 @@
 {
   "project_info": {
-    "project_number": "146898288818",
-    "project_id": "herstartproyectv1",
-    "storage_bucket": "herstartproyectv1.appspot.com"
+    "project_number": "137455453893",
+    "project_id": "hernotes",
+    "storage_bucket": "hernotes.appspot.com"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:146898288818:android:095bda6d64395b08b589ab",
+        "mobilesdk_app_id": "1:137455453893:android:7b79fee7e6f877b027d2ac",
         "android_client_info": {
           "package_name": "com.example.first"
         }
       },
-      "oauth_client": [
-        {
-          "client_id": "146898288818-peasraign7v4ednvqsrpcl3dk3grqp4m.apps.googleusercontent.com",
-          "client_type": 3
-        }
-      ],
+      "oauth_client": [],
       "api_key": [
         {
-          "current_key": "AIzaSyDzqCZ4GZG5zkGOL-m6s-2wjrTmjd2FYTs"
+          "current_key": "AIzaSyBb39gXj1FCJn4TU7U8LLu9QIyCuuKrp8Y"
         }
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": [
-            {
-              "client_id": "146898288818-a4pfgrgl84qtjd1rhude9fkan423q7l9.apps.googleusercontent.com",
-              "client_type": 3
-            }
-          ]
+          "other_platform_oauth_client": []
         }
       }
     }

@@ -5,14 +5,14 @@ import 'package:first/models/notes_model.dart';
 import 'package:first/services/notes_service.dart';
 import 'package:flutter/material.dart';
 
-class NotesProvider with ChangeNotifier {
+class NotesProvider extends ChangeNotifier {
   ScrollController notesScrollController = ScrollController();
+  List<NotesModel> notes = [];
   final NoteService _noteService = NoteService();
-  final List<NotesModel> _notes = [];
   bool loading = true;
   bool noteLoading = false;
 
-  List<NotesModel> get notes => _notes;
+  List<NotesModel> get takeNotes => notes;
 
   Future<void> addNote({
     required NotesModel note,
@@ -27,22 +27,24 @@ class NotesProvider with ChangeNotifier {
     );
 
     int id = await _noteService.addNote(addNoteModel);
-    note.id = id;
-    note.fecha = DateTime.now();
-
-    _notes.add(note);
+    if (id != -1) {
+      note.id = id;
+      note.fecha = DateTime.now();
+      notes.add(note);
+      noteLoading = false;
+      notifyListeners();
+      return;
+    }
 
     noteLoading = false;
-
     notifyListeners();
   }
 
   Future<void> getNotes(int id) async {
-    if (!loading) return;
+    // if (!loading) return;
     List<NotesModel>? response = await _noteService.getNotes(id);
     if (response != null) {
-      _notes.clear();
-      _notes.addAll(response);
+      notes = response;
     }
     loading = false;
     notifyListeners();
@@ -54,7 +56,7 @@ class NotesProvider with ChangeNotifier {
       anotacion: notations,
     ));
 
-    final note = _notes.firstWhere((e) => e.id == noteId);
+    final note = notes.firstWhere((e) => e.id == noteId);
     note.notaciones = notations;
     notifyListeners();
   }
@@ -69,14 +71,14 @@ class NotesProvider with ChangeNotifier {
 
   void toggleNoteSelection(int id) {
     //all the notes that are selected will be unselected except the one with the id
-    for (var element in _notes) {
+    for (var element in notes) {
       if (element.id != id) {
         element.selected = false;
       }
     }
 
     //the note with the id will be selected if it was not selected
-    final note = _notes.firstWhere((element) => element.id == id);
+    final note = notes.firstWhere((element) => element.id == id);
     note.selected = !note.selected;
 
     notifyListeners();
@@ -84,7 +86,7 @@ class NotesProvider with ChangeNotifier {
 
   void clearNotes() {
     //all the notes will be unselected
-    for (var element in _notes) {
+    for (var element in notes) {
       element.selected = false;
     }
     notifyListeners();

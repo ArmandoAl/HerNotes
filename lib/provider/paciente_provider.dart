@@ -2,7 +2,7 @@ import 'package:first/models/model_for_control_usertype.dart';
 import 'package:first/models/paciente_model.dart';
 import 'package:flutter/material.dart';
 
-class PacienteProvider with ChangeNotifier {
+class PacienteProvider extends ChangeNotifier {
   bool loading = true;
   PacienteModel? paciente;
   PacienteModel? get getPaciente => paciente;

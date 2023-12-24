@@ -24,14 +24,30 @@ class _DiarioViewState extends State<DiarioView> {
   final contentController = TextEditingController();
 
   @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final notesProvider = Provider.of<NotesProvider>(context, listen: false);
+      notesProvider.getNotes(widget.userId);
+    });
+  }
+
+  @override
+  void dispose() {
+    notesScrollController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    final userProvider = Provider.of<UserProvider>(context);
-    final notesProvider = Provider.of<NotesProvider>(context);
-    final themeProvider = Provider.of<ThemeProvider>(context);
+    UserProvider userProvider =
+        Provider.of<UserProvider>(context, listen: true);
+    NotesProvider notesProvider =
+        Provider.of<NotesProvider>(context, listen: true);
+    ThemeProvider themeProvider =
+        Provider.of<ThemeProvider>(context, listen: true);
 
     if (notesProvider.loading) {
-      notesProvider.getNotes(widget.userId);
-
       return const Center(
         child: CircularProgressIndicator(),
       );
@@ -88,18 +104,22 @@ class _DiarioViewState extends State<DiarioView> {
                           children: [
                             Row(
                               children: [
-                                Text(
-                                  note.title,
-                                  style: TextStyle(
-                                      fontSize: 20,
-                                      fontWeight: FontWeight.bold,
-                                      color: themeProvider.isDarkModeEnabled
-                                          ? Colors.white
-                                          : Colors.black),
+                                Expanded(
+                                  child: Text(
+                                    note.title,
+                                    style: TextStyle(
+                                        fontSize: 20,
+                                        fontWeight: FontWeight.bold,
+                                        color: themeProvider.isDarkModeEnabled
+                                            ? Colors.white
+                                            : Colors.black),
+                                  ),
                                 ),
-                                const Spacer(),
+                                const SizedBox(
+                                  width: 10,
+                                ),
                                 Text(
-                                  "${note.fecha!.day}/${note.fecha!.month}/${note.fecha!.year}",
+                                  " ${note.fecha!.hour}:${note.fecha!.minute} - ${note.fecha!.day}/${note.fecha!.month}/${note.fecha!.year}",
                                   style: TextStyle(
                                       fontSize: 12,
                                       fontWeight: FontWeight.bold,
@@ -132,13 +152,14 @@ class _DiarioViewState extends State<DiarioView> {
                                     ],
                                   ),
                                 ),
-                                const Spacer(),
+                                SizedBox(
+                                    width: MediaQuery.of(context).size.width *
+                                        0.05),
                                 Column(
                                   crossAxisAlignment: CrossAxisAlignment.end,
                                   mainAxisAlignment:
                                       MainAxisAlignment.spaceBetween,
-                                  children: _notesList(
-                                      notesProvider.notes[index].emociones!),
+                                  children: _notesList(note.emociones!),
                                 )
                               ],
                             ),

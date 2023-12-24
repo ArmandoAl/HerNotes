@@ -5,7 +5,7 @@ import 'package:first/services/auth_service.dart';
 import 'package:flutter/material.dart';
 import 'package:localstorage/localstorage.dart';
 
-class UserProvider with ChangeNotifier {
+class UserProvider extends ChangeNotifier {
   bool loading = false;
   ModelForControlUsertype? user;
   bool logged = false;

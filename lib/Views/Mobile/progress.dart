@@ -59,14 +59,18 @@ class _ProgresoViewState extends State<ProgresoView> {
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      NotesProvider notesProvider =
+          Provider.of<NotesProvider>(context, listen: false);
+      if (notesProvider.notes.isEmpty) {
+        DoctorProvider doctorProvider =
+            Provider.of<DoctorProvider>(context, listen: false);
+        await notesProvider.getNotes(doctorProvider.doctor!.pacientes![0].id!);
+      }
+    });
+
     NotesProvider notesProvider =
         Provider.of<NotesProvider>(context, listen: false);
-    // DoctorProvider doctorProvider =
-    //     Provider.of<DoctorProvider>(context, listen: false);
-    // if (notesProvider.notes.isEmpty) {
-    //   print("getNotes");
-    //   notesProvider.getNotes(doctorProvider.doctor!.pacientes![0].id!);
-    // }
     weeks = calculateWeeks(notesProvider.notes);
     dropdownItems = buildDropdownItems(weeks);
   }
@@ -79,6 +83,8 @@ class _ProgresoViewState extends State<ProgresoView> {
     DoctorProvider doctorProvider = Provider.of<DoctorProvider>(context);
 
     if (weeks.isEmpty) {
+      print("weeks is empty");
+      print(notesProvider.notes.length);
       return const Center(
         child: CircularProgressIndicator(),
       );
@@ -390,7 +396,7 @@ class _ProgresoViewState extends State<ProgresoView> {
                 ),
                 const Spacer(),
                 Text(
-                  "${notesProvider.notes[itemPressed].fecha!.day}/${notesProvider.notes[itemPressed].fecha!.month}/${notesProvider.notes[itemPressed].fecha!.year}",
+                  "${notesProvider.notes[itemPressed].fecha!.hour}:${notesProvider.notes[itemPressed].fecha!.minute} - ${notesProvider.notes[itemPressed].fecha!.day}/${notesProvider.notes[itemPressed].fecha!.month}/${notesProvider.notes[itemPressed].fecha!.year}",
                   style: const TextStyle(
                     color: Colors.white,
                     fontSize: 12,
@@ -421,6 +427,7 @@ class _ProgresoViewState extends State<ProgresoView> {
                     ),
                   ),
                 ),
+                const SizedBox(width: 10),
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.end,
                   children: [

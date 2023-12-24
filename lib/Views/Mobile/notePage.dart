@@ -166,11 +166,11 @@ Future<void> showEmotionDialog(
                           userId: userId,
                         );
                         setState();
-                        notesProvider.move();
                         titleController.clear();
                         contentController.clear();
                         emotionProvider.clearEmotions();
                         emociones.clear();
+                        notesProvider.getNotes(userId);
                         Navigator.pop(context);
                       },
                       child: const Text('Guardar',

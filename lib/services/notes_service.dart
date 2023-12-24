@@ -44,13 +44,12 @@ class NoteService {
         for (var element in notesJson) {
           notes.add(NotesModel.fromJson(element));
         }
+
         return notes;
       } else {
-        print("else");
         return null;
       }
     } catch (e) {
-      print("catch notas");
       print(e);
       return null;
     }

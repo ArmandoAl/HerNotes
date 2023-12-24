@@ -1,3 +1,5 @@
+import 'package:firebase_core/firebase_core.dart';
+import 'package:first/firebase_options.dart';
 import 'package:first/guia.dart';
 import 'package:first/provider/doctor_provider.dart';
 import 'package:first/provider/emotions_provider.dart';
@@ -11,6 +13,9 @@ import 'package:provider/provider.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
   final storage = LocalStorage("app.json");
   await storage.ready;
   runApp(MyApp(storage: storage));
