@@ -1,9 +1,9 @@
 // ignore_for_file: file_names, use_build_context_synchronously
-import 'package:first/Views/Mobile/diary.dart';
-import 'package:first/Views/Mobile/listOfUsersView.dart';
 import 'package:first/models/model_for_control_usertype.dart';
 import 'package:first/provider/doctor_provider.dart';
 import 'package:first/provider/user_provider.dart';
+import 'package:first/screens/diary.dart';
+import 'package:first/screens/listOfUsersView.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -103,7 +103,7 @@ Widget mobileSingUp(
           SizedBox(
             width: 150,
             height: 150,
-            child: Image.asset("lib/images/her_head.png"),
+            child: Image.asset("lib/images/her_head_.png"),
           ),
           const SizedBox(
             height: 50,

@@ -3,6 +3,7 @@ class UserModel {
   String name;
   String email;
   String password;
+  List<String> tokens = [];
 
   UserModel({
     this.id,

@@ -12,6 +12,9 @@ class HeaderWidget extends StatelessWidget implements PreferredSizeWidget {
   Widget build(BuildContext context) {
     ThemeProvider theme = Provider.of<ThemeProvider>(context);
     return AppBar(
+      shadowColor: theme.isDarkModeEnabled
+          ? theme.dark['shadowColor']
+          : theme.light['shadowColor'],
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(
           bottom: Radius.circular(15),
@@ -24,6 +27,7 @@ class HeaderWidget extends StatelessWidget implements PreferredSizeWidget {
       backgroundColor: theme.isDarkModeEnabled
           ? theme.dark['backgroundColor']
           : theme.light['backgroundColor'],
+      
       toolbarHeight: preferredSize.height,
       leading: Builder(
         builder: (BuildContext context) {

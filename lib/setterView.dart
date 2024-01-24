@@ -1,10 +1,9 @@
 // ignore_for_file: file_names
-
-import 'package:first/Views/Mobile/diary.dart';
-import 'package:first/Views/Mobile/listOfUsersView.dart';
 import 'package:first/provider/doctor_provider.dart';
 import 'package:first/provider/paciente_provider.dart';
 import 'package:first/provider/user_provider.dart';
+import 'package:first/screens/diary.dart';
+import 'package:first/screens/listOfUsersView.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 

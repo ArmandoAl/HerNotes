@@ -11,6 +11,7 @@ class NotesProvider extends ChangeNotifier {
   final NoteService _noteService = NoteService();
   bool loading = true;
   bool noteLoading = false;
+  bool newTaskHover = false;
 
   List<NotesModel> get takeNotes => notes;
 
@@ -94,6 +95,11 @@ class NotesProvider extends ChangeNotifier {
 
   void noteLoadingChange() {
     noteLoading = true;
+    notifyListeners();
+  }
+
+  void setNewTaskHover(bool state) {
+    newTaskHover = state;
     notifyListeners();
   }
 }

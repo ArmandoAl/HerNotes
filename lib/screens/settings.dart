@@ -1,5 +1,5 @@
-import 'package:first/Views/Mobile/login.dart';
 import 'package:first/provider/user_provider.dart';
+import 'package:first/screens/login.dart';
 import 'package:first/utils/theme_provider.dart';
 import 'package:first/widgets/header.dart';
 import 'package:flutter/material.dart';
@@ -50,7 +50,7 @@ class _ConfiguracionViewState extends State<ConfiguracionView> {
               height: 50,
             ),
             _userSettings(user.getUser!.user.name.toString(),
-                user.getUser!.user.email.toString()),
+                user.getUser!.user.email.toString(), theme),
             const SizedBox(
               height: 80,
             ),
@@ -102,7 +102,6 @@ class _ConfiguracionViewState extends State<ConfiguracionView> {
         const Text(
           'Configuración',
           style: TextStyle(
-            color: Colors.black,
             fontSize: 30,
           ),
         ),
@@ -111,14 +110,20 @@ class _ConfiguracionViewState extends State<ConfiguracionView> {
     );
   }
 
-  Widget _userSettings(String name, String email) {
+  Widget _userSettings(String name, String email, ThemeProvider theme) {
     return Row(
       children: [
-        Image.asset(
-          'lib/images/her_head.png',
-          width: 50,
-          height: 50,
-        ),
+        theme.isDarkModeEnabled
+            ? Image.asset(
+                'lib/images/her_head.png',
+                width: 50,
+                height: 50,
+              )
+            : Image.asset(
+                'lib/images/her_head_.png',
+                width: 50,
+                height: 50,
+              ),
         const SizedBox(
           width: 30,
         ),
@@ -129,7 +134,6 @@ class _ConfiguracionViewState extends State<ConfiguracionView> {
             Text(
               name,
               style: const TextStyle(
-                color: Colors.black,
                 fontSize: 20,
               ),
             ),
@@ -139,7 +143,6 @@ class _ConfiguracionViewState extends State<ConfiguracionView> {
             Text(
               email,
               style: const TextStyle(
-                color: Colors.black,
                 fontSize: 12,
               ),
             ),
@@ -178,7 +181,6 @@ class _ConfiguracionViewState extends State<ConfiguracionView> {
         Text(
           text,
           style: const TextStyle(
-            color: Colors.black,
             fontSize: 20,
           ),
         ),
@@ -186,10 +188,11 @@ class _ConfiguracionViewState extends State<ConfiguracionView> {
         IconButton(
             onPressed: () {
               if (text == "Cerrar sesión") {
+                theme.setTheme(false);
                 logout(context, user);
               }
               if (text == "Dark Mode") {
-                theme.enableDarkMode(!theme.isDarkModeEnabled);
+                theme.setTheme(!theme.isDarkModeEnabled);
               }
             },
             icon: const Icon(Icons.arrow_forward_ios)),

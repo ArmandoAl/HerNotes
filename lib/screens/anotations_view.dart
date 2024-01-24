@@ -1,5 +1,8 @@
 import 'package:first/provider/notes_provider.dart';
+import 'package:first/utils/theme_provider.dart';
+import 'package:first/widgets/return_header.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class AnotationsView extends StatefulWidget {
   final String? anotations;
@@ -28,12 +31,17 @@ class _AnotationsViewState extends State<AnotationsView> {
 
   @override
   Widget build(BuildContext context) {
+    ThemeProvider themeProvider = Provider.of<ThemeProvider>(context);
     return Scaffold(
-        appBar: AppBar(
-          title: const Text(''),
-        ),
+        appBar: const ReturnHeaderWidget(),
         body: Container(
-          margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+          decoration: BoxDecoration(
+               color: themeProvider.isDarkModeEnabled
+                  ? themeProvider.dark['backgroundColor']
+                  : themeProvider.light['backgroundColor'],
+              borderRadius: BorderRadius.circular(20))
+          ,
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
           child: Column(
             children: [
               const SizedBox(

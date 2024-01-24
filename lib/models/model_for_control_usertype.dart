@@ -14,4 +14,6 @@ class ModelForControlUsertype {
         usertype: json["userType"],
         user: CompleteUserModel.fromJson(json["user"]),
       );
+
+  get id => null;
 }

@@ -96,7 +96,7 @@ class AuthService {
   Future<bool> logout(
     LocalStorage storage,
   ) async {
-    storage.deleteItem("userStorage");
+    storage.clear();
     return true;
   }
 

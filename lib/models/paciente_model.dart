@@ -1,9 +1,11 @@
 import 'package:first/models/notes_model.dart';
+import 'package:first/models/task_model.dart';
 import 'package:first/models/user_model.dart';
 
 class PacienteModel extends UserModel {
   int? doctorId;
   List<NotesModel>? notas;
+  List<TaskModel>? tareas;
 
   PacienteModel({
     this.doctorId,

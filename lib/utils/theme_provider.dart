@@ -1,6 +1,12 @@
+// ignore_for_file: avoid_print
+
 import 'package:flutter/material.dart';
+import 'package:localstorage/localstorage.dart';
 
 class ThemeProvider extends ChangeNotifier {
+  final LocalStorage storage;
+  ThemeProvider({required this.storage});
+
   final light = {
     'backgroundColor': const Color(0xF5F5F5F5),
     'textColor': Colors.black,
@@ -8,6 +14,7 @@ class ThemeProvider extends ChangeNotifier {
     'iconColorDark': Colors.black,
     'drawerColor': const Color.fromARGB(255, 41, 141, 228),
     'cardColor': Colors.white70,
+    'shadowColor': Colors.black54,
   };
 
   final dark = {
@@ -17,11 +24,19 @@ class ThemeProvider extends ChangeNotifier {
     'iconColorDark': Colors.white,
     'drawerColor': const Color.fromARGB(255, 33, 33, 33),
     'cardColor': Colors.black54,
+    'shadowColor': Colors.white54,
   };
 
   bool isDarkModeEnabled = false;
 
-  void enableDarkMode(bool isDarkModeEnabled) {
+  void getTheme() async {
+    isDarkModeEnabled = await storage.getItem('isDarkModeEnabled') ?? false;
+    print(isDarkModeEnabled);
+    notifyListeners();
+  }
+
+  void setTheme(bool isDarkModeEnabled) {
+    storage.setItem('isDarkModeEnabled', isDarkModeEnabled);
     this.isDarkModeEnabled = isDarkModeEnabled;
     notifyListeners();
   }

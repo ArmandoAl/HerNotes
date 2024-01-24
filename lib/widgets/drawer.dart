@@ -1,9 +1,9 @@
-import 'package:first/Views/Mobile/diary.dart';
-import 'package:first/Views/Mobile/listOfUsersView.dart';
-import 'package:first/Views/Mobile/progress.dart';
-import 'package:first/Views/Mobile/settings.dart';
 import 'package:first/provider/doctor_provider.dart';
 import 'package:first/provider/user_provider.dart';
+import 'package:first/screens/diary.dart';
+import 'package:first/screens/listOfUsersView.dart';
+import 'package:first/screens/progress.dart';
+import 'package:first/screens/settings.dart';
 import 'package:first/utils/theme_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -48,9 +48,9 @@ class _DrawerWidgetState extends State<DrawerWidget> {
                 children: [
                   Row(
                     children: [
-                      const CircleAvatar(
+                      CircleAvatar(
                         radius: 30,
-                        backgroundImage: AssetImage('lib/images/her_head.png'),
+                        backgroundImage: theme.isDarkModeEnabled ? const AssetImage('lib/images/her_head.png') : const AssetImage('lib/images/her_head_.png'),
                       ),
                       const SizedBox(
                         width: 10,
