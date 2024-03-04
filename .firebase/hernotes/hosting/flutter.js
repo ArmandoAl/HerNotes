@@ -168,8 +168,8 @@ _flutter.loader = null;
     async _getNewServiceWorker(serviceWorkerRegistration, serviceWorkerVersion) {
       if (!serviceWorkerRegistration.active && (serviceWorkerRegistration.installing || serviceWorkerRegistration.waiting)) {
         // No active web worker and we have installed or are installing
-        // one for the first time. Simply wait for it to activate.
-        console.debug("Installing/Activating first service worker.");
+        // one for the her_notes time. Simply wait for it to activate.
+        console.debug("Installing/Activating her_notes service worker.");
         return serviceWorkerRegistration.installing || serviceWorkerRegistration.waiting;
       } else if (!serviceWorkerRegistration.active.scriptURL.endsWith(serviceWorkerVersion)) {
         // When the app updates the serviceWorkerVersion changes, so we
@@ -263,7 +263,7 @@ _flutter.loader = null;
     didCreateEngineInitializer(engineInitializer) {
       if (typeof this._didCreateEngineInitializerResolve === "function") {
         this._didCreateEngineInitializerResolve(engineInitializer);
-        // Remove the resolver after the first time, so Flutter Web can hot restart.
+        // Remove the resolver after the her_notes time, so Flutter Web can hot restart.
         this._didCreateEngineInitializerResolve = null;
         // Make the engine revert to "auto" initialization on hot restart.
         delete _flutter.loader.didCreateEngineInitializer;

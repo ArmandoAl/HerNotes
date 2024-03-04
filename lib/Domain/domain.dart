@@ -1,0 +1,12 @@
+export 'package:her_notes/Domain/models/notes_model.dart';
+export 'package:her_notes/Domain/models/task_model.dart';
+export 'package:her_notes/Domain/models/user_model.dart';
+export 'package:her_notes/Domain/models/notes_&_task_model.dart';
+export 'package:her_notes/Domain/models/anotaciones_model.dart';
+export 'package:her_notes/Domain/models/add_note_model.dart';
+export 'package:her_notes/Domain/models/complete_user_model.dart';
+export 'package:her_notes/Domain/models/doctor_model.dart';
+export 'package:her_notes/Domain/models/emocion_model.dart';
+export 'package:her_notes/Domain/models/login_model.dart';
+export 'package:her_notes/Domain/models/model_for_control_usertype.dart';
+export 'package:her_notes/Domain/models/paciente_model.dart';

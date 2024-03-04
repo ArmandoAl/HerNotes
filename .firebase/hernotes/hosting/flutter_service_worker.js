@@ -3,34 +3,39 @@ const MANIFEST = 'flutter-app-manifest';
 const TEMP = 'flutter-temp-cache';
 const CACHE_NAME = 'flutter-app-cache';
 
-const RESOURCES = {"canvaskit/skwasm.worker.js": "bfb704a6c714a75da9ef320991e88b03",
-"canvaskit/skwasm.wasm": "2fc47c0a0c3c7af8542b601634fe9674",
+const RESOURCES = {"assets/AssetManifest.bin": "19a18c634104698159e08925ad4e90df",
+"assets/AssetManifest.bin.json": "51b5edea6b508a29ae3ef7409cb3485d",
+"assets/AssetManifest.json": "ca59ae2dc15c694a899d8392a74b06ed",
+"assets/FontManifest.json": "dc3d03800ccca4601324923c0b1d6d57",
+"assets/fonts/MaterialIcons-Regular.otf": "0542facc7e11e88e5f926049d28acc42",
+"assets/lib/Config/images/her.gif": "41cda2d4a9f9e1006edf7735a6a39d6d",
+"assets/lib/Config/images/her_head.png": "dfa42f5defd5d2575f6dc0233cee9fde",
+"assets/lib/Config/images/her_head_.png": "099cd23067dbca3dfc5463ad82ca0f9f",
+"assets/lib/Config/images/new_task_button.svg": "c0f9e6924a55c15ef54be7540d7fc0e3",
+"assets/lib/Config/images/new_task_hover_button.svg": "5b672f0976329050595e9c586eb748a3",
+"assets/lib/Config/images/professor.svg": "dffcfe75d353b75becc8df0ff1052164",
+"assets/lib/Config/images/student.svg": "ccc136d367e26bf86c17085346acc49c",
+"assets/NOTICES": "b0ad0fc26e8311d57b53d7c9deb52546",
+"assets/packages/cupertino_icons/assets/CupertinoIcons.ttf": "89ed8f4e49bcdfc0b5bfc9b24591e347",
+"assets/shaders/ink_sparkle.frag": "4096b5150bac93c41cbc9b45276bd90f",
 "canvaskit/canvaskit.js": "eb8797020acdbdf96a12fb0405582c1b",
 "canvaskit/canvaskit.wasm": "73584c1a3367e3eaf757647a8f5c5989",
 "canvaskit/chromium/canvaskit.js": "0ae8bbcc58155679458a0f7a00f66873",
 "canvaskit/chromium/canvaskit.wasm": "143af6ff368f9cd21c863bfa4274c406",
 "canvaskit/skwasm.js": "87063acf45c5e1ab9565dcf06b0c18b8",
-"icons/Icon-maskable-192.png": "c457ef57daa1d16f64b27b786ec2ea3c",
-"icons/Icon-512.png": "96e752610906ba2a93c65f8abe1645f1",
-"icons/Icon-maskable-512.png": "301a7604d45b3e739efc881eb04896ea",
+"canvaskit/skwasm.wasm": "2fc47c0a0c3c7af8542b601634fe9674",
+"canvaskit/skwasm.worker.js": "bfb704a6c714a75da9ef320991e88b03",
+"favicon.png": "5dcef449791fa27946b3d35ad8803796",
+"flutter.js": "59a12ab9d00ae8f8096fffc417b6e84f",
 "icons/Icon-192.png": "ac9a721a12bbc803b44f645561ecb1e1",
-"flutter.js": "7d69e653079438abfbb24b82a655b0a4",
-"version.json": "69346249e9faed573f709f5684f17740",
-"manifest.json": "ee6ad2b6d047ee851cab3173fbdeb5df",
-"main.dart.js": "5bf053dc2c2852444dee04bd2f620753",
-"index.html": "02f3b1f6ee2a3482c4b1548883f36714",
-"/": "02f3b1f6ee2a3482c4b1548883f36714",
-"assets/packages/cupertino_icons/assets/CupertinoIcons.ttf": "89ed8f4e49bcdfc0b5bfc9b24591e347",
-"assets/lib/images/her_head.png": "099cd23067dbca3dfc5463ad82ca0f9f",
-"assets/lib/images/her.gif": "41cda2d4a9f9e1006edf7735a6a39d6d",
-"assets/AssetManifest.json": "2d777438b039688e7161a9cb224389f1",
-"assets/NOTICES": "6c2e13a79df84fea3b264c26dccd70ce",
-"assets/FontManifest.json": "dc3d03800ccca4601324923c0b1d6d57",
-"assets/AssetManifest.bin.json": "f03ed0fced87bca528138f3856c87537",
-"assets/shaders/ink_sparkle.frag": "4096b5150bac93c41cbc9b45276bd90f",
-"assets/fonts/MaterialIcons-Regular.otf": "ec40eb85f974b55e81816608120d1200",
-"assets/AssetManifest.bin": "35093ed3dd01a9a25e3db5f5a38e78e3",
-"favicon.png": "5dcef449791fa27946b3d35ad8803796"};
+"icons/Icon-512.png": "96e752610906ba2a93c65f8abe1645f1",
+"icons/Icon-maskable-192.png": "c457ef57daa1d16f64b27b786ec2ea3c",
+"icons/Icon-maskable-512.png": "301a7604d45b3e739efc881eb04896ea",
+"index.html": "d6d44edf767c84004e998ed754a86087",
+"/": "d6d44edf767c84004e998ed754a86087",
+"main.dart.js": "4f725fbb4781251914a3d66feec4b071",
+"manifest.json": "5d775b44cd93d8f2528cf815be526c8a",
+"version.json": "69346249e9faed573f709f5684f17740"};
 // The application shell files that are downloaded before a service worker can
 // start.
 const CORE = ["main.dart.js",
@@ -69,7 +74,7 @@ self.addEventListener("activate", function(event) {
         await caches.delete(TEMP);
         // Save the manifest to make future upgrades efficient.
         await manifestCache.put('manifest', new Response(JSON.stringify(RESOURCES)));
-        // Claim client to enable caching on first launch
+        // Claim client to enable caching on her_notes launch
         self.clients.claim();
         return;
       }
@@ -96,7 +101,7 @@ self.addEventListener("activate", function(event) {
       await caches.delete(TEMP);
       // Save the manifest to make future upgrades efficient.
       await manifestCache.put('manifest', new Response(JSON.stringify(RESOURCES)));
-      // Claim client to enable caching on first launch
+      // Claim client to enable caching on her_notes launch
       self.clients.claim();
       return;
     } catch (err) {
@@ -128,9 +133,9 @@ self.addEventListener("fetch", (event) => {
   if (!RESOURCES[key]) {
     return;
   }
-  // If the URL is the index.html, perform an online-first request.
+  // If the URL is the index.html, perform an online-her_notes request.
   if (key == '/') {
-    return onlineFirst(event);
+    return onlineher_notes(event);
   }
   event.respondWith(caches.open(CACHE_NAME)
     .then((cache) =>  {
@@ -181,7 +186,7 @@ async function downloadOffline() {
 }
 // Attempt to download the resource online before falling back to
 // the offline cache.
-function onlineFirst(event) {
+function onlineher_notes(event) {
   return event.respondWith(
     fetch(event.request).then((response) => {
       return caches.open(CACHE_NAME).then((cache) => {

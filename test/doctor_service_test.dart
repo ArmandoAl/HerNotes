@@ -1,5 +1,5 @@
-import 'package:first/models/paciente_model.dart';
-import 'package:first/services/doctor_service.dart';
+import 'package:her_notes/Domain/models/paciente_model.dart';
+import 'package:her_notes/Data/services/doctor_service.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
 import 'package:mockito/mockito.dart';

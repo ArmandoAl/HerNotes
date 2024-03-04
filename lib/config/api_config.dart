@@ -1,1 +1,1 @@
-const api = "https://hernotes.azurewebsites.net/Api";
+const api = "https://webapihernotes.azurewebsites.net/Api";

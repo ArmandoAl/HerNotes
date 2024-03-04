@@ -1,15 +1,13 @@
 import 'package:firebase_core/firebase_core.dart';
-import 'package:first/firebase_options.dart';
-import 'package:first/guia.dart';
-import 'package:first/provider/doctor_provider.dart';
-import 'package:first/provider/emotions_provider.dart';
-import 'package:first/config/push_notifications.dart';
-import 'package:first/provider/notes_provider.dart';
-import 'package:first/provider/paciente_provider.dart';
-import 'package:first/provider/user_provider.dart';
-import 'package:first/screens/register_page.dart';
-import 'package:first/screens/singUp.dart';
-import 'package:first/utils/theme_provider.dart';
+import 'package:her_notes/Presentation/guia.dart';
+import 'package:her_notes/Presentation/provider/notifications_provider.dart';
+import 'package:her_notes/firebase_options.dart';
+import 'package:her_notes/Presentation/provider/doctor_provider.dart';
+import 'package:her_notes/Presentation/provider/emotions_provider.dart';
+import 'package:her_notes/Presentation/provider/notes_provider.dart';
+import 'package:her_notes/Presentation/provider/paciente_provider.dart';
+import 'package:her_notes/Presentation/provider/user_provider.dart';
+import 'package:her_notes/Config/utils/theme_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:localstorage/localstorage.dart';
 import 'package:provider/provider.dart';
@@ -21,7 +19,6 @@ void main() async {
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
-  // await PushNotifications().init();
   final storage = LocalStorage("app.json");
   await storage.ready;
   runApp(MyApp(storage: storage));
@@ -37,9 +34,13 @@ class MyApp extends StatelessWidget {
     return MultiProvider(
       providers: [
         ChangeNotifierProvider(
-            create: (_) => UserProvider(storage: storage)..getStorage()),
+          create: (_) => UserProvider(storage: storage)..getStorage(),
+          lazy: false,
+        ),
         ChangeNotifierProvider(
             create: (_) => ThemeProvider(storage: storage)..getTheme()),
+        ChangeNotifierProvider(
+            create: (_) => NotificationsProvider()..init(), lazy: false),
         ChangeNotifierProvider(create: (_) => NotesProvider()),
         ChangeNotifierProvider(create: (_) => EmotionProvider()),
         ChangeNotifierProvider(create: (_) => DoctorProvider()),
@@ -58,7 +59,7 @@ class App extends StatelessWidget {
     ThemeProvider theme = Provider.of<ThemeProvider>(context, listen: true);
     return MaterialApp(
       navigatorKey: navKey,
-      routes: {'/home': (context) => const RegisterPage()},
+      routes: {'/home': (context) => const GuiaView()},
       initialRoute: '/home',
       theme: theme.isDarkModeEnabled ? ThemeData.dark() : ThemeData.light(),
       title: 'HerNotes',

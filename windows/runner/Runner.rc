@@ -50,7 +50,7 @@ END
 // Icon
 //
 
-// Icon with lowest ID value placed first to ensure application icon
+// Icon with lowest ID value placed her_notes to ensure application icon
 // remains consistent on all systems.
 IDI_APP_ICON            ICON                    "resources\\app_icon.ico"
 
@@ -90,12 +90,12 @@ BEGIN
         BLOCK "040904e4"
         BEGIN
             VALUE "CompanyName", "com.example" "\0"
-            VALUE "FileDescription", "first" "\0"
+            VALUE "FileDescription", "her_notes" "\0"
             VALUE "FileVersion", VERSION_AS_STRING "\0"
-            VALUE "InternalName", "first" "\0"
+            VALUE "InternalName", "her_notes" "\0"
             VALUE "LegalCopyright", "Copyright (C) 2023 com.example. All rights reserved." "\0"
-            VALUE "OriginalFilename", "first.exe" "\0"
-            VALUE "ProductName", "first" "\0"
+            VALUE "OriginalFilename", "her_notes.exe" "\0"
+            VALUE "ProductName", "her_notes" "\0"
             VALUE "ProductVersion", VERSION_AS_STRING "\0"
         END
     END

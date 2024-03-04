@@ -1,7 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:first/services/auth_service.dart';
-import 'package:first/models/login_model.dart';
-import 'package:first/models/model_for_control_usertype.dart';
+import 'package:her_notes/Data/services/auth_service.dart';
+import 'package:her_notes/Domain/models/login_model.dart';
+import 'package:her_notes/Domain/models/model_for_control_usertype.dart';
 import 'package:localstorage/localstorage.dart';
 import 'package:mockito/mockito.dart';
 
