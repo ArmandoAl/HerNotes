@@ -8,6 +8,7 @@ import 'package:her_notes/Presentation/provider/notes_provider.dart';
 import 'package:her_notes/Presentation/provider/paciente_provider.dart';
 import 'package:her_notes/Presentation/provider/user_provider.dart';
 import 'package:her_notes/Config/utils/theme_provider.dart';
+import 'package:her_notes/Presentation/widgets/haven_viewport.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/date_symbol_data_local.dart';
@@ -68,6 +69,9 @@ class App extends StatelessWidget {
       theme: theme.themeData,
       title: 'HerNotes',
       debugShowCheckedModeBanner: false,
+      builder: (context, child) {
+        return HavenViewport(child: child ?? const SizedBox.shrink());
+      },
     );
   }
 }

@@ -107,17 +107,17 @@ class _BegginScreenState extends State<BegginScreen>
                     ),
                     const SizedBox(height: 28),
                     Container(
-                      height: MediaQuery.of(context).size.height * 0.32,
+                      height: 220,
                       width: double.infinity,
+                      padding: const EdgeInsets.all(12),
                       decoration: BoxDecoration(
                         color: palette.surface,
                         borderRadius: BorderRadius.circular(36),
                         border: Border.all(color: palette.line),
                       ),
-                      clipBehavior: Clip.antiAlias,
                       child: Image.asset(
                         'lib/Config/images/her.gif',
-                        fit: BoxFit.cover,
+                        fit: BoxFit.contain,
                       ),
                     ),
                     const Spacer(),

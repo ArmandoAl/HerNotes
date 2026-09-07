@@ -1,4 +1,5 @@
 import 'package:her_notes/Domain/models/notes_model.dart';
+import 'package:her_notes/Presentation/provider/doctor_provider.dart';
 import 'package:her_notes/Presentation/provider/notes_provider.dart';
 import 'package:her_notes/Presentation/provider/user_provider.dart';
 import 'package:her_notes/Presentation/screens/anotationsScreen.dart';
@@ -87,7 +88,15 @@ class _DiarioViewState extends State<DiarioView> {
     final notesProvider = Provider.of<NotesProvider>(context);
     final palette = havenPalette(context);
     final isDoctor = userProvider.user!.usertype == 'doctor';
-    final name = firstNameOf(userProvider.user!.user.name);
+    String subjectName = firstNameOf(userProvider.user!.user.name);
+    if (isDoctor) {
+      final doctorProvider = Provider.of<DoctorProvider>(context);
+      final match = doctorProvider.doctor?.pacientes
+          ?.where((paciente) => paciente.id == widget.userId);
+      if (match != null && match.isNotEmpty) {
+        subjectName = firstNameOf(match.first.name);
+      }
+    }
 
     if (notesProvider.loading) {
       return const HavenLoader(message: 'Abriendo tu diario...');
@@ -154,7 +163,7 @@ class _DiarioViewState extends State<DiarioView> {
                     padding: const EdgeInsets.fromLTRB(20, 8, 20, 0),
                     child: HavenPageHeader(
                       kicker: isDoctor ? 'Diario compartido' : 'Tu diario',
-                      title: isDoctor ? 'Páginas en silencio' : '$name,',
+                      title: isDoctor ? 'Páginas en silencio' : '$subjectName,',
                       subtitle: isDoctor
                           ? 'Cuando escriba, las entradas aparecerán aquí con respeto.'
                           : '${havenGreeting().toLowerCase()}. Este espacio está listo cuando tú lo estés.',
@@ -188,7 +197,7 @@ class _DiarioViewState extends State<DiarioView> {
                 children: [
                   HavenPageHeader(
                     kicker: isDoctor ? 'Diario acompañado' : havenGreeting(),
-                    title: isDoctor ? 'Las páginas de $name' : name,
+                    title: isDoctor ? 'Las páginas de $subjectName' : subjectName,
                     subtitle: isDoctor
                         ? 'Toca una entrada para dejar una nota clínica suave.'
                         : '¿Cómo está tu corazón hoy?',
