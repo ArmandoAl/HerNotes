@@ -1,12 +1,12 @@
 import 'dart:convert';
 import 'package:her_notes/Config/api_config.dart';
 import 'package:her_notes/Domain/models/emocion_model.dart';
-import 'package:http/http.dart' as http;
+import 'package:her_notes/Data/http_client.dart';
 
 class EmotionService {
   Future<List<EmocionModel>> getEmotions() async {
     try {
-      final response = await http.get(Uri.parse('$api/Emocion/GetAll'),
+      final response = await ApiHttp.get(Uri.parse('$api/Emocion/GetAll'),
           headers: {"Content-Type": "application/json"});
       if (response.statusCode == 200) {
         List<dynamic> body = jsonDecode(response.body);

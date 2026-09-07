@@ -9,13 +9,17 @@ class NotificationsProvider extends ChangeNotifier {
   String? token = '';
 
   Future<void> init() async {
-    await _firebaseMessaging.requestPermission();
-    final fcmToken = await _firebaseMessaging.getToken();
+    try {
+      await _firebaseMessaging.requestPermission();
+      final fcmToken = await _firebaseMessaging.getToken();
 
-    print('FCM Token: $fcmToken');
-    token = fcmToken;
+      print('FCM Token: $fcmToken');
+      token = fcmToken;
 
-    initPushNotifications();
+      initPushNotifications();
+    } catch (e) {
+      print('Notifications init skipped: $e');
+    }
   }
 
   Future<void> handleMessage(RemoteMessage message) async {

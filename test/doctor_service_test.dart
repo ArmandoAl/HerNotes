@@ -12,7 +12,7 @@ void main() {
       // Arrange
       final doctorService = DoctorService();
       // Act
-      final result = await doctorService.getPacientes(3);
+      final result = await doctorService.getPacientes(10);
       // Assert
       expect(result, isNotNull);
       //se espera una liata de PacienteModel
