@@ -5,12 +5,12 @@ import 'dart:convert';
 import 'package:her_notes/Config/api_config.dart';
 import 'package:her_notes/Domain/models/paciente_model.dart';
 import 'package:her_notes/Domain/models/task_model.dart';
-import 'package:http/http.dart' as http;
+import 'package:her_notes/Data/http_client.dart';
 
 class DoctorService {
   Future<List<PacienteModel>> getPacientes(int id) async {
     try {
-      final response = await http.get(
+      final response = await ApiHttp.get(
         Uri.parse('$api/Doctor/$id/GetAllUsers'),
         headers: {
           'Accept': 'application/json',
@@ -32,7 +32,7 @@ class DoctorService {
 
   Future<bool> sendNewTask(int id, TaskModel task, int pacienteId) async {
     try {
-      final response = await http.post(
+      final response = await ApiHttp.post(
         Uri.parse('$api/Doctor/$id/sendTaskToPatien/$pacienteId'),
         headers: {
           'Accept': 'application/json',

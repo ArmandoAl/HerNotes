@@ -5,8 +5,8 @@ import 'package:her_notes/Domain/models/doctor_model.dart';
 import 'package:her_notes/Domain/models/login_model.dart';
 import 'package:her_notes/Domain/models/model_for_control_usertype.dart';
 import 'package:her_notes/Domain/models/user_model.dart';
+import 'package:her_notes/Data/http_client.dart';
 import 'package:localstorage/localstorage.dart';
-import 'package:http/http.dart' as http;
 
 class AuthService {
   //La funcion recoje los datos del usuario y los guarda en la base de datos
@@ -15,7 +15,7 @@ class AuthService {
     try {
       if (loginModel.email.isNotEmpty && loginModel.password.isNotEmpty) {
         try {
-          final response = await http.post(
+          final response = await ApiHttp.post(
               Uri.parse('$api/Paciente/otherlogin'),
               headers: {
                 'Accept': 'application/json',
@@ -76,7 +76,7 @@ class AuthService {
 
   Future<int?> singUpPaciente(UserModel user, LocalStorage storage) async {
     try {
-      final response = await http.post(
+      final response = await ApiHttp.post(
         Uri.parse('$api/Paciente'),
         headers: {
           'Accept': 'application/json',
@@ -98,7 +98,7 @@ class AuthService {
 
   Future<int?> singUpDoctor(DoctorModel doctor, LocalStorage storage) async {
     try {
-      final response = await http.post(
+      final response = await ApiHttp.post(
         Uri.parse('$api/Doctor'),
         headers: {
           'Accept': 'application/json',

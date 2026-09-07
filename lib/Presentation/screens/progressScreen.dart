@@ -26,6 +26,7 @@ class _ProgresoViewState extends State<ProgresoView> {
   List<String> weeks = [];
   List<DropdownMenuItem<int>> dropdownItems = [];
   int weekSelected = 0;
+  int? selectedPacienteId;
 
   List<String> calculateWeeks(List<NotesModel> notes) {
     List<String> weeks = [];
@@ -66,17 +67,24 @@ class _ProgresoViewState extends State<ProgresoView> {
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       NotesProvider notesProvider =
           Provider.of<NotesProvider>(context, listen: false);
-      if (notesProvider.notes.isEmpty) {
+      if (notesProvider.notes.isNotEmpty) return;
+
+      if (widget.userProvider.user!.usertype == "doctor") {
         DoctorProvider doctorProvider =
             Provider.of<DoctorProvider>(context, listen: false);
-        await notesProvider.getNotes(doctorProvider.doctor!.pacientes![0].id!);
+        if (doctorProvider.doctor?.pacientes == null) {
+          await doctorProvider.getPacientes();
+        }
+        final pacientes = doctorProvider.doctor?.pacientes;
+        if (pacientes != null && pacientes.isNotEmpty) {
+          selectedPacienteId = pacientes[0].id;
+          await notesProvider.getNotes(pacientes[0].id!);
+        }
+      } else {
+        await notesProvider.getNotes(widget.userProvider.user!.user.id);
       }
     });
 
-    NotesProvider notesProvider =
-        Provider.of<NotesProvider>(context, listen: false);
-    weeks = calculateWeeks(notesProvider.notes);
-    dropdownItems = buildDropdownItems(weeks);
   }
 
   @override
@@ -85,8 +93,13 @@ class _ProgresoViewState extends State<ProgresoView> {
         Provider.of<NotesProvider>(context, listen: true);
     ThemeProvider theme = Provider.of<ThemeProvider>(context);
     DoctorProvider doctorProvider = Provider.of<DoctorProvider>(context);
+    weeks = calculateWeeks(notesProvider.notes);
+    dropdownItems = buildDropdownItems(weeks);
+    if (weekSelected >= weeks.length) {
+      weekSelected = 0;
+    }
 
-    if (weeks.isEmpty) {
+    if (weeks.isEmpty || notesProvider.loading) {
       return const Center(
         child: CircularProgressIndicator(),
       );
@@ -119,12 +132,21 @@ class _ProgresoViewState extends State<ProgresoView> {
                             width: 1,
                           ),
                         ),
-                        child: DropdownButton(
+                        child: doctorProvider.doctor?.pacientes == null ||
+                                doctorProvider.doctor!.pacientes!.isEmpty
+                            ? const SizedBox(width: 20, height: 20)
+                            : DropdownButton(
                           items: pacientesItems(doctorProvider),
                           onChanged: (value) {
+                            setState(() {
+                              selectedPacienteId = value as int;
+                              itemPressed = null;
+                              weekSelected = 0;
+                            });
                             notesProvider.getNotes(value as int);
                           },
-                          value: doctorProvider.doctor!.pacientes![0].id,
+                          value: selectedPacienteId ??
+                              doctorProvider.doctor!.pacientes![0].id,
                           icon: const Icon(Icons.arrow_drop_down),
                           iconSize: 24,
                           style: TextStyle(

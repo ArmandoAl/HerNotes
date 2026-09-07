@@ -5,13 +5,13 @@ import 'package:her_notes/Domain/models/add_note_model.dart';
 import 'package:her_notes/Domain/models/anotaciones_model.dart';
 import 'package:her_notes/Domain/models/notes_&_task_model.dart';
 import 'package:her_notes/Domain/models/task_model.dart';
-import 'package:http/http.dart' as http;
+import 'package:her_notes/Data/http_client.dart';
 
 class NoteService {
   Future<int> addNote(
       AddNoteModel addNoteModel, TaskModel? task, int id) async {
     try {
-      final response = await http.post(Uri.parse('$api/Nota'),
+      final response = await ApiHttp.post(Uri.parse('$api/Nota'),
           headers: {
             'Content-Type': 'application/json',
             'Accept': 'application/json',
@@ -20,7 +20,7 @@ class NoteService {
       if (response.statusCode == 200) {
         if (task != null) {
           try {
-            final taskResponse = await http.post(
+            final taskResponse = await ApiHttp.post(
               Uri.parse('$api/Paciente/$id/completeTaskAndNotiDoctor'),
               headers: {
                 'Content-Type': 'application/json',
@@ -50,7 +50,7 @@ class NoteService {
   Future<NotesAndTaskModel?> getNotes(int userId) async {
     try {
       final response =
-          await http.get(Uri.parse('$api/Paciente/$userId/notas'), headers: {
+          await ApiHttp.get(Uri.parse('$api/Paciente/$userId/notas'), headers: {
         'Content-Type': 'application/json',
         'Accept': 'application/json',
       });
@@ -70,7 +70,7 @@ class NoteService {
 
   Future<void> addNotations(AnotacionesModel model) async {
     try {
-      final response = await http.put(
+      final response = await ApiHttp.put(
         Uri.parse('$api/Nota/addNotations'),
         headers: {
           'Content-Type': 'application/json',

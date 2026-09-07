@@ -3,12 +3,12 @@
 import 'dart:convert';
 
 import 'package:her_notes/Config/api_config.dart';
-import 'package:http/http.dart' as http;
+import 'package:her_notes/Data/http_client.dart';
 
 class PacienteService {
   Future<int?> relateDoctor(int id, String tokenForRelate) async {
     try {
-      final response = await http.post(
+      final response = await ApiHttp.post(
         Uri.parse('$api/Paciente/$id/relate/$tokenForRelate'),
         headers: {
           'Accept': 'application/json',

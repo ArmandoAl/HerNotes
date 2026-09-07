@@ -6,6 +6,7 @@ import 'package:her_notes/Presentation/provider/user_provider.dart';
 import 'package:her_notes/Presentation/setterView.dart';
 import 'package:her_notes/Config/utils/theme_provider.dart';
 import 'package:her_notes/Config/utils/validateEmailFuction.dart';
+import 'package:her_notes/Data/mocks/mock_credentials.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -172,70 +173,90 @@ class _LoginViewState extends State<LoginView> {
             textFieldWidget(context, "Contraseña", passwordController,
                 oscureText, changeOscureText),
             const SizedBox(
-              height: 50,
+              height: 30,
             ),
-            // Padding(
-            //   padding: EdgeInsets.all(MediaQuery.of(context).size.width * 0.05),
-            //   child: Text(
-            //     "Hola, si estas viendo esto es porque vienes de linkedin o de mi portafolio, asi que muchas gracias por interesarte en mi trabajo, esta aplicacion tiene un uso real, pero para fines practicos, puedes iniciar sesion con de manera rapida con estos usuarios de prueba",
-            //     textAlign: TextAlign.center,
-            //     style: TextStyle(
-            //         fontSize: MediaQuery.of(context).size.width * 0.03),
-            //   ),
-            // ),
-            // ElevatedButton(
-            //   onPressed: () {
-            //     changeControllerContent(
-            //       "paciente@gmail.com",
-            //       "paciente",
-            //     );
-            //     setState();
-            //     login(context, userProvider, doctorProvider);
-            //   },
-            //   style: ElevatedButton.styleFrom(
-            //     padding: const EdgeInsets.all(20),
-            //     foregroundColor: Colors.white,
-            //     backgroundColor: const Color.fromRGBO(63, 202, 206, 1),
-            //     shape: const RoundedRectangleBorder(
-            //       borderRadius: BorderRadius.all(Radius.circular(15)),
-            //     ),
-            //   ),
-            //   child: loading
-            //       ? const CircularProgressIndicator()
-            //       : const Text(
-            //           "Iniciar como paciente",
-            //           style: TextStyle(
-            //             fontSize: 20,
-            //           ),
-            //         ),
-            // ),
-            // SizedBox(
-            //   height: MediaQuery.of(context).size.height * 0.05,
-            // ),
-            // ElevatedButton(
-            //   onPressed: () {
-            //     changeControllerContent("doctor@gmail.com", "doctor");
-            //     setDoctorState();
-            //     login(context, userProvider, doctorProvider);
-            //   },
-            //   style: ElevatedButton.styleFrom(
-            //     padding: const EdgeInsets.all(20),
-            //     foregroundColor: Colors.white,
-            //     backgroundColor: const Color.fromRGBO(63, 202, 206, 1),
-            //     shape: const RoundedRectangleBorder(
-            //       borderRadius: BorderRadius.all(Radius.circular(15)),
-            //     ),
-            //   ),
-            //   child: doctorLoading
-            //       ? const CircularProgressIndicator()
-            //       : const Text(
-            //           "Iniciar como doctor",
-            //           style: TextStyle(
-            //             fontSize: 20,
-            //           ),
-            //         ),
-            // ),
-
+            Padding(
+              padding: EdgeInsets.symmetric(
+                  horizontal: MediaQuery.of(context).size.width * 0.08),
+              child: Text(
+                "Demo: usa los botones de abajo o inicia sesión con\n"
+                "${MockCredentials.studentEmail} / ${MockCredentials.studentPassword}\n"
+                "${MockCredentials.teacherEmail} / ${MockCredentials.teacherPassword}",
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                    fontSize: MediaQuery.of(context).size.width * 0.032,
+                    color: Colors.black54),
+              ),
+            ),
+            const SizedBox(
+              height: 20,
+            ),
+            ElevatedButton(
+              onPressed: () {
+                changeControllerContent(
+                  MockCredentials.studentEmail,
+                  MockCredentials.studentPassword,
+                );
+                setState();
+                login(context, userProvider, doctorProvider);
+              },
+              style: ElevatedButton.styleFrom(
+                padding: const EdgeInsets.all(20),
+                foregroundColor: Colors.white,
+                backgroundColor: const Color.fromRGBO(63, 202, 206, 1),
+                shape: const RoundedRectangleBorder(
+                  borderRadius: BorderRadius.all(Radius.circular(15)),
+                ),
+              ),
+              child: loading
+                  ? const SizedBox(
+                      width: 24,
+                      height: 24,
+                      child: CircularProgressIndicator(color: Colors.white),
+                    )
+                  : const Text(
+                      "Iniciar como alumno",
+                      style: TextStyle(
+                        fontSize: 20,
+                      ),
+                    ),
+            ),
+            SizedBox(
+              height: MediaQuery.of(context).size.height * 0.03,
+            ),
+            ElevatedButton(
+              onPressed: () {
+                changeControllerContent(
+                  MockCredentials.teacherEmail,
+                  MockCredentials.teacherPassword,
+                );
+                setDoctorState();
+                login(context, userProvider, doctorProvider);
+              },
+              style: ElevatedButton.styleFrom(
+                padding: const EdgeInsets.all(20),
+                foregroundColor: Colors.white,
+                backgroundColor: const Color.fromRGBO(63, 202, 206, 1),
+                shape: const RoundedRectangleBorder(
+                  borderRadius: BorderRadius.all(Radius.circular(15)),
+                ),
+              ),
+              child: doctorLoading
+                  ? const SizedBox(
+                      width: 24,
+                      height: 24,
+                      child: CircularProgressIndicator(color: Colors.white),
+                    )
+                  : const Text(
+                      "Iniciar como profesor",
+                      style: TextStyle(
+                        fontSize: 20,
+                      ),
+                    ),
+            ),
+            const SizedBox(
+              height: 20,
+            ),
             ElevatedButton(
               onPressed: () {
                 setState();
