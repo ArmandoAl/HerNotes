@@ -2,11 +2,8 @@
 
 Diario terapéutico en Flutter para nombrar emociones y, si se desea, compartir el camino con un terapeuta. El espacio está pensado para sentirse suave: lino, salvia y copy que invita, no exige.
 
-Hoy la app corre con **mocks in-app** (`useMocks = true`), así que la demo funciona sin Azure.
-
 ## Capturas
 
-Las pantallas viven en `lib/Images/`. Aquí van en columnas, a tamaño reducido.
 
 <table>
   <tr>
