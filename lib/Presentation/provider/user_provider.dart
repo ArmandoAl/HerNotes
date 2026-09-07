@@ -6,7 +6,7 @@ import 'package:her_notes/Presentation/screens/begginScreen.dart';
 import 'package:localstorage/localstorage.dart';
 
 class UserProvider extends ChangeNotifier {
-  bool loading = false;
+  bool loading = true;
   ModelForControlUsertype? user;
   bool logged = false;
   final AuthService _authService = AuthService();

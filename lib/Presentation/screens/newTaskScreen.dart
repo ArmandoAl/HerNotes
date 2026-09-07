@@ -1,8 +1,10 @@
-// ignore_for_file: file_names
-
+// ignore_for_file: use_build_context_synchronously
 import 'package:her_notes/Domain/models/task_model.dart';
 import 'package:her_notes/Presentation/provider/doctor_provider.dart';
 import 'package:her_notes/Config/utils/theme_provider.dart';
+import 'package:her_notes/Presentation/widgets/app_message.dart';
+import 'package:her_notes/Presentation/widgets/haven_atmosphere.dart';
+import 'package:her_notes/Presentation/widgets/haven_button.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -15,9 +17,10 @@ class WriteNewTask extends StatefulWidget {
 }
 
 class _WriteNewTaskState extends State<WriteNewTask> {
-  TextEditingController titleController = TextEditingController();
-  TextEditingController contentController = TextEditingController();
+  final TextEditingController titleController = TextEditingController();
+  final TextEditingController contentController = TextEditingController();
   String pacienteName = '';
+  bool saving = false;
 
   @override
   void initState() {
@@ -28,81 +31,116 @@ class _WriteNewTaskState extends State<WriteNewTask> {
 
   @override
   Widget build(BuildContext context) {
-    DoctorProvider doctorProvider =
-        Provider.of<DoctorProvider>(context, listen: false);
-    ThemeProvider theme = Provider.of<ThemeProvider>(context, listen: true);
+    final doctorProvider = Provider.of<DoctorProvider>(context, listen: false);
+    final palette = havenPalette(context);
+    final first = pacienteName.split(' ').first;
 
-    return Scaffold(
-      appBar: AppBar(
-        shadowColor: theme.isDarkModeEnabled
-            ? theme.dark['shadowColor']
-            : theme.light['shadowColor'],
-        shape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.vertical(
-            bottom: Radius.circular(15),
+    return HavenAtmosphere(
+      child: Scaffold(
+        backgroundColor: Colors.transparent,
+        body: SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(20, 8, 20, 20),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    const HavenBackButton(),
+                    const Spacer(),
+                    HavenButton(
+                      label: 'Enviar',
+                      expanded: false,
+                      loading: saving,
+                      icon: Icons.send_rounded,
+                      onPressed: () async {
+                        if (titleController.text.isEmpty ||
+                            contentController.text.isEmpty) {
+                          showHavenMessage(
+                            context,
+                            'Necesitamos un título y una invitación para escribir.',
+                            isError: true,
+                          );
+                          return;
+                        }
+                        setState(() => saving = true);
+                        final task = TaskModel(
+                          title: titleController.text,
+                          content: contentController.text,
+                          isDone: false,
+                        );
+                        await doctorProvider.sendNewTask(
+                            task, widget.pacienteId);
+                        if (!mounted) return;
+                        Navigator.pop(context);
+                      },
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 18),
+                Text(
+                  'Un ejercicio para $first',
+                  style: Theme.of(context).textTheme.headlineMedium,
+                ),
+                const SizedBox(height: 6),
+                Text(
+                  'Invita, no impongas. Una pregunta abierta suele abrir más que una orden.',
+                  style: Theme.of(context).textTheme.bodyMedium,
+                ),
+                const SizedBox(height: 18),
+                Expanded(
+                  child: Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.fromLTRB(20, 16, 20, 20),
+                    decoration: BoxDecoration(
+                      color: palette.surface,
+                      borderRadius: BorderRadius.circular(28),
+                      border: Border.all(color: palette.line),
+                    ),
+                    child: Column(
+                      children: [
+                        TextField(
+                          controller: titleController,
+                          style: Theme.of(context).textTheme.headlineSmall,
+                          decoration: const InputDecoration(
+                            hintText: 'Título del ejercicio',
+                            filled: false,
+                            border: InputBorder.none,
+                            enabledBorder: InputBorder.none,
+                            focusedBorder: InputBorder.none,
+                            contentPadding: EdgeInsets.zero,
+                          ),
+                        ),
+                        Divider(color: palette.line),
+                        Expanded(
+                          child: TextField(
+                            controller: contentController,
+                            maxLines: null,
+                            expands: true,
+                            textAlignVertical: TextAlignVertical.top,
+                            style: Theme.of(context)
+                                .textTheme
+                                .bodyLarge
+                                ?.copyWith(height: 1.65),
+                            decoration: const InputDecoration(
+                              hintText:
+                                  'Describe la invitación. Qué observar, qué sentir, qué escribir...',
+                              filled: false,
+                              border: InputBorder.none,
+                              enabledBorder: InputBorder.none,
+                              focusedBorder: InputBorder.none,
+                              contentPadding: EdgeInsets.zero,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
-        centerTitle: true,
-        title: Text('Nueva tarea para $pacienteName',
-            style: TextStyle(
-                color: theme.isDarkModeEnabled ? Colors.white : Colors.black)),
-        backgroundColor: theme.isDarkModeEnabled
-            ? theme.dark['backgroundColor']
-            : theme.light['backgroundColor'],
-        leading: Builder(
-          builder: (BuildContext context) {
-            return IconButton(
-              icon: const Icon(Icons.arrow_back_ios_new,
-                  color: Color.fromRGBO(47, 137, 252, 1)),
-              iconSize: 30,
-              onPressed: () {
-                Navigator.pop(context);
-              },
-            );
-          },
-        ),
-      ),
-      body: Container(
-        decoration: BoxDecoration(
-          color: theme.isDarkModeEnabled
-              ? theme.dark['backgroundColor']
-              : theme.light['backgroundColor'],
-        ),
-        padding: const EdgeInsets.all(10),
-        child: Column(
-          children: [
-            TextField(
-              controller: titleController,
-              decoration: const InputDecoration(
-                hintText: 'Título',
-                disabledBorder: InputBorder.none,
-                border: InputBorder.none,
-              ),
-            ),
-            Expanded(
-              child: TextField(
-                controller: contentController,
-                maxLines: null,
-                decoration: const InputDecoration(
-                  hintText: 'Contenido',
-                  disabledBorder: InputBorder.none,
-                  border: InputBorder.none,
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () async {
-          final task = TaskModel(
-            title: titleController.text,
-            content: contentController.text,
-            isDone: false,
-          );
-          await doctorProvider.sendNewTask(task, widget.pacienteId);
-        },
-        child: const Icon(Icons.save),
       ),
     );
   }

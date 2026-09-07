@@ -118,4 +118,9 @@ class NotesProvider extends ChangeNotifier {
     newTaskHover = false;
     notifyListeners();
   }
+
+  void markLoaded() {
+    loading = false;
+    notifyListeners();
+  }
 }

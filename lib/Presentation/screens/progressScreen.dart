@@ -1,5 +1,3 @@
-// ignore_for_file: avoid_print
-
 import 'package:her_notes/Domain/models/emocion_model.dart';
 import 'package:her_notes/Domain/models/notes_model.dart';
 import 'package:her_notes/Presentation/provider/doctor_provider.dart';
@@ -7,15 +5,14 @@ import 'package:her_notes/Presentation/provider/notes_provider.dart';
 import 'package:her_notes/Presentation/provider/user_provider.dart';
 import 'package:her_notes/Config/utils/emocion_colors.dart';
 import 'package:her_notes/Config/utils/theme_provider.dart';
-import 'package:her_notes/Presentation/widgets/header.dart';
+import 'package:her_notes/Presentation/screens/main_shell.dart';
+import 'package:her_notes/Presentation/widgets/empty_state.dart';
+import 'package:her_notes/Presentation/widgets/haven_loader.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import '../widgets/drawer.dart';
-
 class ProgresoView extends StatefulWidget {
-  final UserProvider userProvider;
-  const ProgresoView({Key? key, required this.userProvider}) : super(key: key);
+  const ProgresoView({Key? key}) : super(key: key);
 
   @override
   State<ProgresoView> createState() => _ProgresoViewState();
@@ -23,54 +20,36 @@ class ProgresoView extends StatefulWidget {
 
 class _ProgresoViewState extends State<ProgresoView> {
   int? itemPressed;
-  List<String> weeks = [];
-  List<DropdownMenuItem<int>> dropdownItems = [];
   int weekSelected = 0;
   int? selectedPacienteId;
 
   List<String> calculateWeeks(List<NotesModel> notes) {
-    List<String> weeks = [];
-
+    final weeks = <String>[];
     for (int i = 0; i < notes.length; i++) {
       if (i == 0) {
-        weeks.add("Semana 1");
+        weeks.add('Semana 1');
       } else {
-        int weekNumber =
+        final weekNumber =
             notes[i].fecha!.difference(notes[0].fecha!).inDays ~/ 7 + 1;
         if (weekNumber > weeks.length) {
-          weeks.add("Semana $weekNumber");
+          weeks.add('Semana $weekNumber');
         }
       }
     }
-
-    if (weeks.isEmpty) {
-      weeks.add("Semana 1");
-    }
-
+    if (weeks.isEmpty) weeks.add('Semana 1');
     return weeks;
-  }
-
-  List<DropdownMenuItem<int>> buildDropdownItems(List<String> weeks) {
-    List<DropdownMenuItem<int>> items = [];
-    for (int i = 0; i < weeks.length; i++) {
-      items.add(DropdownMenuItem(
-        value: i,
-        child: Text(weeks[i]),
-      ));
-    }
-    return items;
   }
 
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) async {
-      NotesProvider notesProvider =
-          Provider.of<NotesProvider>(context, listen: false);
+      final notesProvider = Provider.of<NotesProvider>(context, listen: false);
+      final userProvider = Provider.of<UserProvider>(context, listen: false);
       if (notesProvider.notes.isNotEmpty) return;
 
-      if (widget.userProvider.user!.usertype == "doctor") {
-        DoctorProvider doctorProvider =
+      if (userProvider.user!.usertype == 'doctor') {
+        final doctorProvider =
             Provider.of<DoctorProvider>(context, listen: false);
         if (doctorProvider.doctor?.pacientes == null) {
           await doctorProvider.getPacientes();
@@ -79,191 +58,234 @@ class _ProgresoViewState extends State<ProgresoView> {
         if (pacientes != null && pacientes.isNotEmpty) {
           selectedPacienteId = pacientes[0].id;
           await notesProvider.getNotes(pacientes[0].id!);
+        } else {
+          notesProvider.markLoaded();
         }
       } else {
-        await notesProvider.getNotes(widget.userProvider.user!.user.id);
+        await notesProvider.getNotes(userProvider.user!.user.id);
       }
     });
-
   }
 
   @override
   Widget build(BuildContext context) {
-    NotesProvider notesProvider =
-        Provider.of<NotesProvider>(context, listen: true);
-    ThemeProvider theme = Provider.of<ThemeProvider>(context);
-    DoctorProvider doctorProvider = Provider.of<DoctorProvider>(context);
-    weeks = calculateWeeks(notesProvider.notes);
-    dropdownItems = buildDropdownItems(weeks);
-    if (weekSelected >= weeks.length) {
-      weekSelected = 0;
-    }
+    final notesProvider = Provider.of<NotesProvider>(context);
+    final userProvider = Provider.of<UserProvider>(context);
+    final doctorProvider = Provider.of<DoctorProvider>(context);
+    final palette = havenPalette(context);
+    final weeks = calculateWeeks(notesProvider.notes);
+    if (weekSelected >= weeks.length) weekSelected = 0;
+    final isDoctor = userProvider.user!.usertype == 'doctor';
 
-    if (weeks.isEmpty || notesProvider.loading) {
-      return const Center(
-        child: CircularProgressIndicator(),
-      );
+    if (notesProvider.loading) {
+      return const HavenLoader(message: 'Leyendo tu mapa emocional...');
     }
 
     return Scaffold(
-      appBar: const HeaderWidget(),
-      drawer: const DrawerWidget(
-        currentPage: 'Progress',
-      ),
-      body: Container(
-        width: double.infinity,
-        height: double.infinity,
-        padding: const EdgeInsets.only(top: 10.0),
-        color: theme.isDarkModeEnabled
-            ? theme.dark['backgroundColor']
-            : theme.light['backgroundColor'],
-        child: Column(
-          children: [
-            Row(
-              children: [
-                widget.userProvider.user!.usertype == "doctor"
-                    ? Container(
-                        margin: const EdgeInsets.symmetric(horizontal: 5.0),
-                        padding: const EdgeInsets.symmetric(horizontal: 10.0),
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(10.0),
-                          border: Border.all(
-                            color: Colors.black,
-                            width: 1,
-                          ),
-                        ),
-                        child: doctorProvider.doctor?.pacientes == null ||
-                                doctorProvider.doctor!.pacientes!.isEmpty
-                            ? const SizedBox(width: 20, height: 20)
-                            : DropdownButton(
-                          items: pacientesItems(doctorProvider),
-                          onChanged: (value) {
-                            setState(() {
-                              selectedPacienteId = value as int;
-                              itemPressed = null;
-                              weekSelected = 0;
-                            });
-                            notesProvider.getNotes(value as int);
-                          },
-                          value: selectedPacienteId ??
-                              doctorProvider.doctor!.pacientes![0].id,
-                          icon: const Icon(Icons.arrow_drop_down),
-                          iconSize: 24,
-                          style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                              color: theme.isDarkModeEnabled
-                                  ? Colors.white
-                                  : Colors.black),
-                          underline: Container(
-                            height: 0,
-                          ),
-                        ),
-                      )
-                    : const Spacer(),
-                const Spacer(),
-                Container(
-                  margin: const EdgeInsets.symmetric(horizontal: 5.0),
-                  padding: const EdgeInsets.symmetric(horizontal: 10.0),
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(10.0),
-                    border: Border.all(
-                      color: Colors.black,
-                      width: 1,
+      backgroundColor: Colors.transparent,
+      body: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(20, 8, 20, 118),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              HavenPageHeader(
+                kicker: 'Mapa emocional',
+                title: isDoctor ? 'El clima interior' : 'Tu clima interior',
+                subtitle: 'Mira cómo se mueven las emociones a lo largo de los días.',
+              ),
+              const SizedBox(height: 8),
+              Row(
+                children: [
+                  if (isDoctor)
+                    Expanded(
+                      child: _HavenSelect<int>(
+                        value: selectedPacienteId ??
+                            doctorProvider.doctor?.pacientes?.firstOrNull?.id,
+                        items: (doctorProvider.doctor?.pacientes ?? [])
+                            .map(
+                              (p) => DropdownMenuItem(
+                                value: p.id,
+                                child: Text(p.name),
+                              ),
+                            )
+                            .toList(),
+                        onChanged: (value) {
+                          if (value == null) return;
+                          setState(() {
+                            selectedPacienteId = value;
+                            itemPressed = null;
+                            weekSelected = 0;
+                          });
+                          notesProvider.getNotes(value);
+                        },
+                      ),
                     ),
-                  ),
-                  child: DropdownButton(
-                    items: dropdownItems,
-                    onChanged: (value) {
-                      setState(() {
-                        weekSelected = value as int;
-                      });
-                    },
-                    value: weekSelected,
-                    icon: const Icon(Icons.arrow_drop_down),
-                    iconSize: 24,
-                    style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                        color: theme.isDarkModeEnabled
-                            ? Colors.white
-                            : Colors.black),
-                    underline: Container(
-                      height: 0,
+                  if (isDoctor) const SizedBox(width: 10),
+                  Expanded(
+                    child: _HavenSelect<int>(
+                      value: weekSelected,
+                      items: [
+                        for (int i = 0; i < weeks.length; i++)
+                          DropdownMenuItem(
+                            value: i,
+                            child: Text(weeks[i]),
+                          ),
+                      ],
+                      onChanged: (value) {
+                        if (value == null) return;
+                        setState(() {
+                          weekSelected = value;
+                          itemPressed = null;
+                        });
+                      },
                     ),
-                  ),
-                )
-              ],
-            ),
-            const Spacer(),
-            AnimatedContainer(
-                duration: const Duration(milliseconds: 500),
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(10.0),
-                ),
-                padding: const EdgeInsets.symmetric(horizontal: 10.0),
-                margin: const EdgeInsets.symmetric(horizontal: 5.0),
-                width: double.infinity,
-                height: MediaQuery.of(context).size.height * 0.20,
-                child: SingleChildScrollView(
-                  scrollDirection: Axis.horizontal,
-                  physics: const BouncingScrollPhysics(),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: _notesItems(notesProvider, weekSelected),
-                  ),
-                )),
-            AnimatedContainer(
-              duration: const Duration(milliseconds: 500),
-              height: MediaQuery.of(context).size.height * 0.55,
-              width: double.infinity,
-              padding: const EdgeInsets.only(right: 20.0, left: 20.0),
-              decoration: const BoxDecoration(
-                color: Color.fromARGB(255, 20, 20, 20),
-                borderRadius: BorderRadius.only(
-                  topLeft: Radius.circular(20.0),
-                  topRight: Radius.circular(20.0),
-                ),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black12,
-                    blurRadius: 5.0,
-                    spreadRadius: 5.0,
                   ),
                 ],
               ),
-              child: SingleChildScrollView(
-                  scrollDirection: Axis.vertical,
-                  physics: const BouncingScrollPhysics(),
-                  child: Column(
-                    children: [
-                      SizedBox(
-                        height: MediaQuery.of(context).size.height * 0.08,
-                      ),
-                      notaBottomWidget(context, notesProvider, itemPressed,
-                          widget.userProvider),
-                    ],
-                  )),
-            )
-          ],
+              const SizedBox(height: 18),
+              if (notesProvider.notes.isEmpty)
+                const Expanded(
+                  child: HavenEmptyState(
+                    icon: Icons.insights_rounded,
+                    title: 'Aún no hay un mapa',
+                    subtitle:
+                        'Cuando existan páginas en el diario, aquí verás el pulso emocional de cada día.',
+                  ),
+                )
+              else ...[
+                SizedBox(
+                  height: 170,
+                  child: ListView(
+                    scrollDirection: Axis.horizontal,
+                    physics: const BouncingScrollPhysics(),
+                    children: _notesItems(notesProvider, weekSelected),
+                  ),
+                ),
+                const SizedBox(height: 16),
+                Expanded(
+                  child: Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.fromLTRB(18, 18, 18, 16),
+                    decoration: BoxDecoration(
+                      color: palette.surface,
+                      borderRadius: BorderRadius.circular(28),
+                      border: Border.all(color: palette.line),
+                    ),
+                    child: SingleChildScrollView(
+                      child: itemPressed == null
+                          ? _legend(context)
+                          : _noteDetail(
+                              context,
+                              notesProvider,
+                              itemPressed!,
+                              isDoctor,
+                            ),
+                    ),
+                  ),
+                ),
+              ],
+            ],
+          ),
         ),
       ),
     );
   }
 
-  List<DropdownMenuItem<int>> pacientesItems(DoctorProvider doctorProvider) {
-    List<DropdownMenuItem<int>> items = [];
-    for (int i = 0; i < doctorProvider.doctor!.pacientes!.length; i++) {
-      items.add(DropdownMenuItem(
-        value: doctorProvider.doctor!.pacientes![i].id,
-        child: Text(doctorProvider.doctor!.pacientes![i].name),
-      ));
-    }
-    return items;
+  Widget _legend(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text('Simbología suave',
+            style: Theme.of(context).textTheme.headlineSmall),
+        const SizedBox(height: 6),
+        Text(
+          'Cada color es una familia emocional. Toca una columna para leer el día.',
+          style: Theme.of(context).textTheme.bodyMedium,
+        ),
+        const SizedBox(height: 18),
+        Wrap(
+          spacing: 8,
+          runSpacing: 8,
+          children: emotionColors.keys.map((e) {
+            return Container(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+              decoration: BoxDecoration(
+                color: emotionColorOf(e).withOpacity(0.16),
+                borderRadius: BorderRadius.circular(16),
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(emotionIconOf(e), size: 16, color: emotionColorOf(e)),
+                  const SizedBox(width: 6),
+                  Text(
+                    e,
+                    style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                          color: emotionColorOf(e),
+                        ),
+                  ),
+                ],
+              ),
+            );
+          }).toList(),
+        ),
+      ],
+    );
+  }
+
+  Widget _noteDetail(
+    BuildContext context,
+    NotesProvider notesProvider,
+    int index,
+    bool isDoctor,
+  ) {
+    final note = notesProvider.notes[index];
+    final palette = havenPalette(context);
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(note.title, style: Theme.of(context).textTheme.headlineSmall),
+        const SizedBox(height: 4),
+        Text(
+          '${note.fecha!.day}/${note.fecha!.month}/${note.fecha!.year} · ${note.fecha!.hour}:${note.fecha!.minute.toString().padLeft(2, '0')}',
+          style: Theme.of(context).textTheme.bodySmall,
+        ),
+        const SizedBox(height: 14),
+        Text(
+          note.content.texto ?? '',
+          style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                color: palette.inkSoft,
+                height: 1.55,
+              ),
+        ),
+        const SizedBox(height: 14),
+        Wrap(
+          spacing: 8,
+          runSpacing: 8,
+          children: (note.emociones ?? [])
+              .map(
+                (e) => Text(
+                  e.tipo,
+                  style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                        color: emotionColorOf(e.emocionBase),
+                      ),
+                ),
+              )
+              .toList(),
+        ),
+        if (isDoctor && note.notaciones != null && note.notaciones!.isNotEmpty) ...[
+          const SizedBox(height: 18),
+          Text('Nota clínica', style: Theme.of(context).textTheme.titleMedium),
+          const SizedBox(height: 6),
+          Text(note.notaciones!, style: Theme.of(context).textTheme.bodyMedium),
+        ],
+      ],
+    );
   }
 
   List<Widget> _notesItems(NotesProvider notesProvider, int weekSelected) {
-    List<Widget> notes = [];
+    final notes = <Widget>[];
     for (int i = 0; i < notesProvider.notes.length; i++) {
       if (notesProvider.notes[i].fecha!
                       .difference(notesProvider.notes[0].fecha!)
@@ -271,237 +293,110 @@ class _ProgresoViewState extends State<ProgresoView> {
                   7 +
               1 ==
           weekSelected + 1) {
-        notes.add(GestureDetector(
-          onTap: () {
-            setState(() {
-              itemPressed = i;
-              // close = !close;
-            });
-          },
-          child: Stack(children: [
-            Container(
-              padding: const EdgeInsets.all(3.0),
+        final selected = itemPressed == i;
+        notes.add(
+          GestureDetector(
+            onTap: () => setState(() => itemPressed = i),
+            child: AnimatedContainer(
+              duration: const Duration(milliseconds: 200),
+              width: 62,
+              margin: const EdgeInsets.only(right: 10),
+              padding: const EdgeInsets.fromLTRB(8, 10, 8, 10),
+              decoration: BoxDecoration(
+                color: havenPalette(context).surface,
+                borderRadius: BorderRadius.circular(22),
+                border: Border.all(
+                  color: selected
+                      ? havenPalette(context).primary
+                      : havenPalette(context).line,
+                  width: selected ? 1.8 : 1,
+                ),
+              ),
               child: Column(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: _emotionsList(notesProvider.notes[i].emociones!),
+                children: [
+                  Expanded(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: _emotionsList(
+                        notesProvider.notes[i].emociones ?? [],
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    '${notesProvider.notes[i].fecha!.day}/${notesProvider.notes[i].fecha!.month}',
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                          fontWeight: FontWeight.w800,
+                        ),
+                  ),
+                ],
               ),
             ),
-            Positioned(
-              //quiero la fecha de la nota, solo el dia y mes, no el año, en formato dd/mm verticalmente
-              bottom: 10,
-              left: 15,
-              child: Container(
-                padding: const EdgeInsets.all(3.0),
-                decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.5),
-                  borderRadius: const BorderRadius.only(
-                    topLeft: Radius.circular(10.0),
-                    bottomRight: Radius.circular(10.0),
-                  ),
-                ),
-                child: Text(
-                  "${notesProvider.notes[i].fecha!.day}/${notesProvider.notes[i].fecha!.month}",
-                  style: const TextStyle(
-                    color: Colors.black,
-                    fontSize: 12,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ),
-            )
-          ]),
-        ));
+          ),
+        );
       }
     }
     return notes;
   }
 
   List<Widget> _emotionsList(List<EmocionModel> emotions) {
-    emotions.sort((a, b) => b.valor.compareTo(a.valor));
-
-    int heightInt = 150;
-    List<Widget> emotionsList = [];
-    for (int i = 0; i < emotions.length; i++) {
-      emotionsList.add(Container(
-          margin: const EdgeInsets.symmetric(
-            horizontal: 5.0,
-          ),
-          padding: const EdgeInsets.all(5.0),
-          height: heightInt / emotions.length - 1,
-          width: 50.0,
+    final sorted = [...emotions]..sort((a, b) => b.valor.compareTo(a.valor));
+    return [
+      for (int i = 0; i < sorted.length; i++)
+        Container(
+          height: 18,
+          margin: const EdgeInsets.only(bottom: 3),
           decoration: BoxDecoration(
-            color: emotionColors[emotions[i].emocionBase],
+            color: emotionColorOf(sorted[i].emocionBase),
             borderRadius: i == 0
-                ? const BorderRadius.only(
-                    topLeft: Radius.circular(10.0),
-                    topRight: Radius.circular(10.0),
-                  )
-                : BorderRadius.circular(0.0),
-            boxShadow: const [
-              BoxShadow(
-                color: Colors.black12,
-                blurRadius: 5.0,
-                offset: Offset(0, 5),
-              ),
-            ],
-          )));
-    }
-    return emotionsList;
-  }
-
-//Emocion: Enojado
-  Widget notaBottomWidget(BuildContext context, NotesProvider notesProvider,
-      int? itemPressed, UserProvider userProvider) {
-    if (itemPressed == null) {
-      return Column(
-        children: [
-          const Text("Simbología",
-              style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold)),
-          const SizedBox(
-            height: 15,
+                ? const BorderRadius.vertical(top: Radius.circular(8))
+                : BorderRadius.circular(4),
           ),
-          Wrap(
-            alignment: WrapAlignment.center,
-            spacing: 8.0,
-            runSpacing: 28.0,
-            children: emotionColors.keys.map((e) {
-              return Container(
-                margin: const EdgeInsets.symmetric(
-                  horizontal: 5.0,
-                ),
-                padding: const EdgeInsets.all(5.0),
-                height: 50.0,
-                width: MediaQuery.of(context).size.width * 0.4,
-                decoration: BoxDecoration(
-                  color: emotionColors[e],
-                  borderRadius: const BorderRadius.all(
-                    Radius.circular(10.0),
-                  ),
-                  boxShadow: const [
-                    BoxShadow(
-                      color: Colors.black12,
-                      blurRadius: 5.0,
-                      offset: Offset(0, 5),
-                    ),
-                  ],
-                ),
-                child: Center(
-                  child: Text(
-                    e,
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ),
-              );
-            }).toList(),
-          ),
-        ],
-      );
-    } else {
-      return SizedBox(
-        width: double.infinity,
-        child: Column(
-          children: [
-            Row(
-              children: [
-                Expanded(
-                  child: Text(
-                    notesProvider.notes[itemPressed].title,
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
-                    ),
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ),
-                const Spacer(),
-                Text(
-                  "${notesProvider.notes[itemPressed].fecha!.hour}:${notesProvider.notes[itemPressed].fecha!.minute} - ${notesProvider.notes[itemPressed].fecha!.day}/${notesProvider.notes[itemPressed].fecha!.month}/${notesProvider.notes[itemPressed].fecha!.year}",
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 12,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 5),
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Expanded(
-                  child: SizedBox(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          notesProvider.notes[itemPressed].content.texto!,
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 18,
-                            fontWeight: FontWeight.normal,
-                          ),
-                          textAlign: TextAlign.justify,
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 10),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.end,
-                  children: [
-                    ...notesProvider.notes[itemPressed].emociones!
-                        .map((e) => Text(
-                              e.tipo,
-                              style: TextStyle(
-                                color: emotionColors[e.emocionBase],
-                                fontSize: 18,
-                                fontWeight: FontWeight.normal,
-                              ),
-                              textAlign: TextAlign.justify,
-                            ))
-                  ],
-                ),
-              ],
-            ),
-            const SizedBox(height: 20),
-            userProvider.user!.usertype == "doctor" &&
-                    notesProvider.notes[itemPressed].notaciones != null
-                ? Column(
-                    children: [
-                      const Text(
-                        "Notaciones",
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      const SizedBox(
-                        height: 15,
-                      ),
-                      Text(
-                        notesProvider.notes[itemPressed].notaciones!,
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 18,
-                          fontWeight: FontWeight.normal,
-                        ),
-                        textAlign: TextAlign.justify,
-                      ),
-                    ],
-                  )
-                : const SizedBox(),
-          ],
         ),
-      );
-    }
+    ];
   }
+}
+
+class _HavenSelect<T> extends StatelessWidget {
+  final T? value;
+  final List<DropdownMenuItem<T>> items;
+  final ValueChanged<T?> onChanged;
+  const _HavenSelect({
+    required this.value,
+    required this.items,
+    required this.onChanged,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final palette = havenPalette(context);
+    if (items.isEmpty) {
+      return const SizedBox.shrink();
+    }
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 14),
+      decoration: BoxDecoration(
+        color: palette.surface,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: palette.line),
+      ),
+      child: DropdownButtonHideUnderline(
+        child: DropdownButton<T>(
+          isExpanded: true,
+          value: value,
+          items: items,
+          onChanged: onChanged,
+          icon: Icon(Icons.keyboard_arrow_down_rounded, color: palette.inkSoft),
+          dropdownColor: palette.surface,
+          style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                color: palette.ink,
+              ),
+        ),
+      ),
+    );
+  }
+}
+
+extension _FirstOrNull<E> on List<E> {
+  E? get firstOrNull => isEmpty ? null : first;
 }

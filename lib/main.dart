@@ -9,6 +9,8 @@ import 'package:her_notes/Presentation/provider/paciente_provider.dart';
 import 'package:her_notes/Presentation/provider/user_provider.dart';
 import 'package:her_notes/Config/utils/theme_provider.dart';
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:intl/date_symbol_data_local.dart';
 import 'package:localstorage/localstorage.dart';
 import 'package:provider/provider.dart';
 
@@ -16,19 +18,20 @@ final navKey = GlobalKey<NavigatorState>();
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  GoogleFonts.config.allowRuntimeFetching = true;
+  await initializeDateFormatting('es');
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
-  final storage = LocalStorage("app.json");
+  final storage = LocalStorage('app.json');
   await storage.ready;
   runApp(MyApp(storage: storage));
 }
 
-// ignore: must_be_immutable
 class MyApp extends StatelessWidget {
   final LocalStorage storage;
   const MyApp({Key? key, required this.storage}) : super(key: key);
-  // This widget is the root of your application
+
   @override
   Widget build(BuildContext context) {
     return MultiProvider(
@@ -56,12 +59,13 @@ class App extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    ThemeProvider theme = Provider.of<ThemeProvider>(context, listen: true);
+    final ThemeProvider theme =
+        Provider.of<ThemeProvider>(context, listen: true);
     return MaterialApp(
       navigatorKey: navKey,
       routes: {'/home': (context) => const GuiaView()},
       initialRoute: '/home',
-      theme: theme.isDarkModeEnabled ? ThemeData.dark() : ThemeData.light(),
+      theme: theme.themeData,
       title: 'HerNotes',
       debugShowCheckedModeBanner: false,
     );

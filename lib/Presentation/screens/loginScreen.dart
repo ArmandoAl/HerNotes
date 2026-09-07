@@ -1,12 +1,15 @@
-// ignore_for_file: avoid_print, use_build_context_synchronously, duplicate_ignore, unused_import
+// ignore_for_file: use_build_context_synchronously
+import 'package:her_notes/Data/mocks/mock_credentials.dart';
 import 'package:her_notes/Domain/models/login_model.dart';
 import 'package:her_notes/Domain/models/model_for_control_usertype.dart';
-import 'package:her_notes/Presentation/provider/doctor_provider.dart';
 import 'package:her_notes/Presentation/provider/user_provider.dart';
 import 'package:her_notes/Presentation/setterView.dart';
+import 'package:her_notes/Presentation/widgets/app_message.dart';
+import 'package:her_notes/Presentation/widgets/haven_atmosphere.dart';
+import 'package:her_notes/Presentation/widgets/haven_button.dart';
+import 'package:her_notes/Presentation/widgets/haven_text_field.dart';
 import 'package:her_notes/Config/utils/theme_provider.dart';
 import 'package:her_notes/Config/utils/validateEmailFuction.dart';
-import 'package:her_notes/Data/mocks/mock_credentials.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -20,16 +23,22 @@ class LoginView extends StatefulWidget {
 class _LoginViewState extends State<LoginView> {
   bool loading = false;
   bool doctorLoading = false;
-  bool oscureText = true;
-  TextEditingController emailController = TextEditingController();
-  TextEditingController passwordController = TextEditingController();
+  bool obscureText = true;
+  final TextEditingController emailController = TextEditingController();
+  final TextEditingController passwordController = TextEditingController();
 
-  void login(BuildContext context, UserProvider userProvider,
-      DoctorProvider doctorProvider) async {
+  Future<void> login({bool asDoctor = false}) async {
+    setState(() {
+      if (asDoctor) {
+        doctorLoading = true;
+      } else {
+        loading = true;
+      }
+    });
+
     if (emailController.text.isEmpty || passwordController.text.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-        content: Text("Por favor, llene todos los campos"),
-      ));
+      showHavenMessage(context, 'Toma aire. Falta completar algunos campos.',
+          isError: true);
       setState(() {
         loading = false;
         doctorLoading = false;
@@ -38,9 +47,8 @@ class _LoginViewState extends State<LoginView> {
     }
 
     if (validateEmail(emailController.text.trim()) == false) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-        content: Text("Por favor, ingrese un correo válido"),
-      ));
+      showHavenMessage(context, 'Revisa el correo para poder entrar.',
+          isError: true);
       setState(() {
         loading = false;
         doctorLoading = false;
@@ -48,311 +56,151 @@ class _LoginViewState extends State<LoginView> {
       return;
     }
 
-    Login loginModel = Login(
+    final userProvider = Provider.of<UserProvider>(context, listen: false);
+    final Login loginModel = Login(
       email: emailController.text.trim(),
       password: passwordController.text.trim(),
     );
-    ModelForControlUsertype? response = await userProvider.login(loginModel);
+    final ModelForControlUsertype? response =
+        await userProvider.login(loginModel);
     if (response != null) {
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(
-            builder: (context) => SetterView(
-                  userProvider: userProvider,
-                )),
+          builder: (context) => SetterView(userProvider: userProvider),
+        ),
       );
     } else {
       setState(() {
         loading = false;
         doctorLoading = false;
       });
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Error al iniciar sesión'),
-        ),
+      showHavenMessage(
+        context,
+        'No pudimos entrar. Revisa tu correo y contraseña.',
+        isError: true,
       );
     }
   }
 
-  void changeControllerContent(String email, String password) {
-    setState(() {
-      emailController.text = email;
-      passwordController.text = password;
-    });
-  }
-
   @override
   Widget build(BuildContext context) {
-    UserProvider userProvider =
-        Provider.of<UserProvider>(context, listen: false);
-    DoctorProvider doctorProvider = Provider.of<DoctorProvider>(context);
-    ThemeProvider theme = Provider.of<ThemeProvider>(context);
-    return mobileLogin(
-        context,
-        emailController,
-        passwordController,
-        login,
-        loading,
-        userProvider,
-        doctorProvider,
-        changeControllerContent,
-        () {
-          setState(() {
-            loading = true;
-          });
-        },
-        () {
-          setState(() {
-            doctorLoading = true;
-          });
-        },
-        theme,
-        oscureText,
-        () {
-          setState(() {
-            oscureText = !oscureText;
-          });
-        });
-  }
-
-  Widget mobileLogin(
-      BuildContext context,
-      TextEditingController emailController,
-      TextEditingController passwordController,
-      Function login,
-      bool loading,
-      UserProvider userProvider,
-      DoctorProvider doctorProvider,
-      Function changeControllerContent,
-      Function setState,
-      Function setDoctorState,
-      ThemeProvider theme,
-      bool oscureText,
-      Function changeOscureText) {
-    return Scaffold(
-        body: Container(
-      alignment: Alignment.center,
-      width: MediaQuery.of(context).size.width,
-      height: MediaQuery.of(context).size.height,
-      decoration: const BoxDecoration(
-        color: Color(0xF5F5F5F5),
-      ),
-      child: ListView(children: [
-        Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            SizedBox(
-              height: MediaQuery.of(context).size.height * 0.05,
-            ),
-            Container(
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(100),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.1),
-                    blurRadius: 10,
-                    offset: const Offset(0, 10),
+    final palette = havenPalette(context);
+    return HavenAtmosphere(
+      child: Scaffold(
+        backgroundColor: Colors.transparent,
+        body: SafeArea(
+          child: ListView(
+            padding: const EdgeInsets.fromLTRB(24, 8, 24, 32),
+            children: [
+              const Align(
+                alignment: Alignment.centerLeft,
+                child: HavenBackButton(),
+              ),
+              const SizedBox(height: 18),
+              Text(
+                'Qué bueno\nverte de nuevo',
+                style: Theme.of(context).textTheme.headlineLarge,
+              ),
+              const SizedBox(height: 8),
+              Text(
+                'Entra con calma. Tu diario te espera exactamente donde lo dejaste.',
+                style: Theme.of(context).textTheme.bodyMedium,
+              ),
+              const SizedBox(height: 28),
+              Container(
+                padding: const EdgeInsets.all(20),
+                decoration: BoxDecoration(
+                  color: palette.surface,
+                  borderRadius: BorderRadius.circular(28),
+                  border: Border.all(color: palette.line),
+                ),
+                child: Column(
+                  children: [
+                    Center(
+                      child: CircleAvatar(
+                        radius: 40,
+                        backgroundColor: palette.primarySoft,
+                        backgroundImage: const AssetImage(
+                          'lib/Config/images/her_head.png',
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 24),
+                    HavenTextField(
+                      label: 'Correo',
+                      hint: 'tu@correo.com',
+                      controller: emailController,
+                      icon: Icons.mail_outline_rounded,
+                      keyboardType: TextInputType.emailAddress,
+                    ),
+                    const SizedBox(height: 16),
+                    HavenTextField(
+                      label: 'Contraseña',
+                      controller: passwordController,
+                      icon: Icons.lock_outline_rounded,
+                      obscureText: obscureText,
+                      onToggleObscure: () {
+                        setState(() => obscureText = !obscureText);
+                      },
+                    ),
+                    const SizedBox(height: 22),
+                    HavenButton(
+                      label: 'Entrar',
+                      loading: loading && !doctorLoading,
+                      onPressed: () => login(),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 28),
+              Text(
+                '¿Solo quieres explorar?',
+                textAlign: TextAlign.center,
+                style: Theme.of(context).textTheme.titleSmall,
+              ),
+              const SizedBox(height: 6),
+              Text(
+                'La demo usa ${MockCredentials.studentEmail} o ${MockCredentials.teacherEmail}.',
+                textAlign: TextAlign.center,
+                style: Theme.of(context).textTheme.bodySmall,
+              ),
+              const SizedBox(height: 16),
+              Row(
+                children: [
+                  Expanded(
+                    child: HavenButton(
+                      label: 'Soy paciente',
+                      variant: HavenButtonVariant.secondary,
+                      loading: loading && !doctorLoading,
+                      onPressed: () {
+                        emailController.text = MockCredentials.studentEmail;
+                        passwordController.text =
+                            MockCredentials.studentPassword;
+                        login();
+                      },
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: HavenButton(
+                      label: 'Soy terapeuta',
+                      variant: HavenButtonVariant.secondary,
+                      loading: doctorLoading,
+                      onPressed: () {
+                        emailController.text = MockCredentials.teacherEmail;
+                        passwordController.text =
+                            MockCredentials.teacherPassword;
+                        login(asDoctor: true);
+                      },
+                    ),
                   ),
                 ],
               ),
-              child: CircleAvatar(
-                radius: MediaQuery.of(context).size.width * 0.18,
-                backgroundImage: theme.isDarkModeEnabled
-                    ? const AssetImage('lib/Config/images/her_head.png')
-                    : const AssetImage('lib/Config/images/her_head.png'),
-              ),
-            ),
-            SizedBox(
-              height: MediaQuery.of(context).size.height * 0.05,
-            ),
-            textFieldWidget(
-                context, "Correo electrónico", emailController, null, null),
-            SizedBox(
-              height: MediaQuery.of(context).size.height * 0.05,
-            ),
-            textFieldWidget(context, "Contraseña", passwordController,
-                oscureText, changeOscureText),
-            const SizedBox(
-              height: 30,
-            ),
-            Padding(
-              padding: EdgeInsets.symmetric(
-                  horizontal: MediaQuery.of(context).size.width * 0.08),
-              child: Text(
-                "Demo: usa los botones de abajo o inicia sesión con\n"
-                "${MockCredentials.studentEmail} / ${MockCredentials.studentPassword}\n"
-                "${MockCredentials.teacherEmail} / ${MockCredentials.teacherPassword}",
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                    fontSize: MediaQuery.of(context).size.width * 0.032,
-                    color: Colors.black54),
-              ),
-            ),
-            const SizedBox(
-              height: 20,
-            ),
-            ElevatedButton(
-              onPressed: () {
-                changeControllerContent(
-                  MockCredentials.studentEmail,
-                  MockCredentials.studentPassword,
-                );
-                setState();
-                login(context, userProvider, doctorProvider);
-              },
-              style: ElevatedButton.styleFrom(
-                padding: const EdgeInsets.all(20),
-                foregroundColor: Colors.white,
-                backgroundColor: const Color.fromRGBO(63, 202, 206, 1),
-                shape: const RoundedRectangleBorder(
-                  borderRadius: BorderRadius.all(Radius.circular(15)),
-                ),
-              ),
-              child: loading
-                  ? const SizedBox(
-                      width: 24,
-                      height: 24,
-                      child: CircularProgressIndicator(color: Colors.white),
-                    )
-                  : const Text(
-                      "Iniciar como alumno",
-                      style: TextStyle(
-                        fontSize: 20,
-                      ),
-                    ),
-            ),
-            SizedBox(
-              height: MediaQuery.of(context).size.height * 0.03,
-            ),
-            ElevatedButton(
-              onPressed: () {
-                changeControllerContent(
-                  MockCredentials.teacherEmail,
-                  MockCredentials.teacherPassword,
-                );
-                setDoctorState();
-                login(context, userProvider, doctorProvider);
-              },
-              style: ElevatedButton.styleFrom(
-                padding: const EdgeInsets.all(20),
-                foregroundColor: Colors.white,
-                backgroundColor: const Color.fromRGBO(63, 202, 206, 1),
-                shape: const RoundedRectangleBorder(
-                  borderRadius: BorderRadius.all(Radius.circular(15)),
-                ),
-              ),
-              child: doctorLoading
-                  ? const SizedBox(
-                      width: 24,
-                      height: 24,
-                      child: CircularProgressIndicator(color: Colors.white),
-                    )
-                  : const Text(
-                      "Iniciar como profesor",
-                      style: TextStyle(
-                        fontSize: 20,
-                      ),
-                    ),
-            ),
-            const SizedBox(
-              height: 20,
-            ),
-            ElevatedButton(
-              onPressed: () {
-                setState();
-                login(context, userProvider, doctorProvider);
-              },
-              style: ElevatedButton.styleFrom(
-                padding: const EdgeInsets.all(20),
-                foregroundColor: Colors.white,
-                backgroundColor: const Color.fromRGBO(63, 202, 206, 1),
-                shape: const RoundedRectangleBorder(
-                  borderRadius: BorderRadius.all(Radius.circular(15)),
-                ),
-              ),
-              child: loading
-                  ? const CircularProgressIndicator()
-                  : const Text(
-                      "Iniciar sesión",
-                      style: TextStyle(
-                        fontSize: 20,
-                      ),
-                    ),
-            ),
-            const SizedBox(
-              height: 35,
-            ),
-          ],
+            ],
+          ),
         ),
-      ]),
-    ));
-  }
-
-  Widget textFieldWidget(
-      BuildContext context,
-      String text,
-      TextEditingController controller,
-      bool? oscureText,
-      Function? changeOscureText) {
-    return SizedBox(
-      width: MediaQuery.of(context).size.width * 0.8,
-      height: MediaQuery.of(context).size.height * 0.12,
-      child: Column(children: <Widget>[
-        Row(
-          // ignore: prefer_const_literals_to_create_immutables
-          children: [
-            Text(
-              text,
-              style: const TextStyle(
-                color: Color.fromRGBO(63, 202, 206, 1),
-                fontSize: 20,
-              ),
-            ),
-            const Spacer(),
-          ],
-        ),
-        const SizedBox(
-          height: 10,
-        ),
-        Row(
-          children: [
-            Expanded(
-                child: TextField(
-              obscureText: oscureText ?? false,
-              controller: controller,
-              decoration: InputDecoration(
-                fillColor: const Color.fromRGBO(63, 202, 206, 1),
-                border: const OutlineInputBorder(
-                  borderRadius: BorderRadius.all(
-                    Radius.circular(10),
-                  ),
-                  borderSide: BorderSide(
-                    color: Color.fromRGBO(63, 202, 206, 1),
-                  ),
-                ),
-                icon: Icon(
-                  text == "Correo electrónico" ? Icons.email : Icons.lock,
-                  color: const Color.fromRGBO(63, 202, 206, 1),
-                ),
-                labelText: text,
-              ),
-            )),
-            oscureText != null
-                ? IconButton(
-                    onPressed: () {
-                      changeOscureText!();
-                    },
-                    icon: Icon(
-                      oscureText ? Icons.visibility_off : Icons.visibility,
-                      color: const Color.fromRGBO(63, 202, 206, 1),
-                    ),
-                  )
-                : const SizedBox(
-                    width: 0,
-                  ),
-          ],
-        ),
-      ]),
+      ),
     );
   }
 }

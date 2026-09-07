@@ -6,34 +6,29 @@ class HeaderWidget extends StatelessWidget implements PreferredSizeWidget {
   const HeaderWidget({super.key});
 
   @override
-  Size get preferredSize => const Size.fromHeight(70);
+  Size get preferredSize => const Size.fromHeight(72);
 
   @override
   Widget build(BuildContext context) {
-    ThemeProvider theme = Provider.of<ThemeProvider>(context);
+    final theme = Provider.of<ThemeProvider>(context);
+    final palette = theme.palette;
     return AppBar(
-      shadowColor: theme.isDarkModeEnabled
-          ? theme.dark['shadowColor']
-          : theme.light['shadowColor'],
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(
-          bottom: Radius.circular(15),
+      elevation: 0,
+      centerTitle: true,
+      title: Text(
+        'HerNotes',
+        style: TextStyle(
+          color: palette.ink,
+          fontWeight: FontWeight.w600,
         ),
       ),
-      centerTitle: true,
-      title: Text('HER',
-          style: TextStyle(
-              color: theme.isDarkModeEnabled ? Colors.white : Colors.black)),
-      backgroundColor: theme.isDarkModeEnabled
-          ? theme.dark['backgroundColor']
-          : theme.light['backgroundColor'],
+      backgroundColor: Colors.transparent,
       toolbarHeight: preferredSize.height,
       leading: Builder(
         builder: (BuildContext context) {
           return IconButton(
-            icon:
-                const Icon(Icons.menu, color: Color.fromRGBO(47, 137, 252, 1)),
-            iconSize: 30,
+            icon: Icon(Icons.menu_rounded, color: palette.primary),
+            iconSize: 28,
             onPressed: () {
               Scaffold.of(context).openDrawer();
             },

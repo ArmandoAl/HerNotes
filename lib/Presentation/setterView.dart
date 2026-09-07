@@ -1,10 +1,10 @@
-// ignore_for_file: file_names
 import 'package:her_notes/Presentation/provider/doctor_provider.dart';
 import 'package:her_notes/Presentation/provider/notes_provider.dart';
 import 'package:her_notes/Presentation/provider/paciente_provider.dart';
 import 'package:her_notes/Presentation/provider/user_provider.dart';
-import 'package:her_notes/Presentation/screens/diaryScreen.dart';
-import 'package:her_notes/Presentation/screens/listOfUsersScreen.dart';
+import 'package:her_notes/Presentation/screens/main_shell.dart';
+import 'package:her_notes/Presentation/widgets/haven_atmosphere.dart';
+import 'package:her_notes/Presentation/widgets/haven_loader.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -24,7 +24,7 @@ class _SetterViewState extends State<SetterView> {
     final pacienteProvider =
         Provider.of<PacienteProvider>(context, listen: false);
     WidgetsBinding.instance.addPostFrameCallback((_) async {
-      if (widget.userProvider.user!.usertype == "doctor") {
+      if (widget.userProvider.user!.usertype == 'doctor') {
         doctorProvider.setDoctor(widget.userProvider.user!);
       } else {
         pacienteProvider.setPaciente(widget.userProvider.user!);
@@ -38,20 +38,26 @@ class _SetterViewState extends State<SetterView> {
   Widget build(BuildContext context) {
     final doctorProvider = Provider.of<DoctorProvider>(context);
     final pacienteProvider = Provider.of<PacienteProvider>(context);
-    if (widget.userProvider.user!.usertype == "doctor") {
+    if (widget.userProvider.user!.usertype == 'doctor') {
       if (doctorProvider.loading) {
-        return const Center(
-          child: CircularProgressIndicator(),
+        return const HavenAtmosphere(
+          child: Scaffold(
+            backgroundColor: Colors.transparent,
+            body: HavenLoader(message: 'Abriendo el consultorio...'),
+          ),
         );
       }
-      return ListOfUsersView(doctorProvider: doctorProvider);
+      return const MainShell();
     } else {
       if (pacienteProvider.loading) {
-        return const Center(
-          child: CircularProgressIndicator(),
+        return const HavenAtmosphere(
+          child: Scaffold(
+            backgroundColor: Colors.transparent,
+            body: HavenLoader(message: 'Abriendo tu diario...'),
+          ),
         );
       }
-      return DiarioView(userId: pacienteProvider.paciente!.id!);
+      return const MainShell();
     }
   }
 }

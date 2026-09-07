@@ -1,18 +1,15 @@
-// ignore_for_file: file_names
-
 import 'package:her_notes/Config/utils/theme_provider.dart';
 import 'package:her_notes/Presentation/provider/doctor_provider.dart';
 import 'package:her_notes/Presentation/provider/notes_provider.dart';
 import 'package:her_notes/Presentation/screens/diaryScreen.dart';
-import 'package:her_notes/Presentation/widgets/drawer.dart';
-import 'package:her_notes/Presentation/widgets/header.dart';
+import 'package:her_notes/Presentation/screens/main_shell.dart';
+import 'package:her_notes/Presentation/widgets/empty_state.dart';
+import 'package:her_notes/Presentation/widgets/haven_loader.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 class ListOfUsersView extends StatefulWidget {
-  final DoctorProvider doctorProvider;
-  const ListOfUsersView({Key? key, required this.doctorProvider})
-      : super(key: key);
+  const ListOfUsersView({Key? key}) : super(key: key);
 
   @override
   State<ListOfUsersView> createState() => _ListOfUsersViewState();
@@ -21,67 +18,132 @@ class ListOfUsersView extends StatefulWidget {
 class _ListOfUsersViewState extends State<ListOfUsersView> {
   @override
   Widget build(BuildContext context) {
-    final themeProvider = Provider.of<ThemeProvider>(context);
+    final doctorProvider = Provider.of<DoctorProvider>(context);
     final notesProvider = Provider.of<NotesProvider>(context);
+    final palette = havenPalette(context);
 
-    if (widget.doctorProvider.doctor!.pacientes == null) {
-      widget.doctorProvider.getPacientes();
-      return const Center(
-        child: CircularProgressIndicator(),
-      );
+    if (doctorProvider.doctor?.pacientes == null) {
+      doctorProvider.getPacientes();
+      return const HavenLoader(message: 'Reuniendo a las personas...');
     }
 
-    return Scaffold(
-      appBar: const HeaderWidget(),
-      drawer: const DrawerWidget(
-        currentPage: 'ListOfUsers',
-      ),
-      body: widget.doctorProvider.doctor!.pacientes!.isEmpty
-          ? Container(
-              padding: const EdgeInsets.all(20),
-              width: double.infinity,
-              height: double.infinity,
-              decoration: BoxDecoration(
-                color: themeProvider.isDarkModeEnabled
-                    ? themeProvider.dark['backgroundColor']
-                    : themeProvider.light['backgroundColor'],
-              ),
-              child: const Center(
-                child: Text(
-                    'No tienes pacientes registrados, en el menu lateral encontraras la opcion para compartirle tu codigo de vinculacion a tus pacientes.',
-                    style: TextStyle(fontSize: 20, color: Colors.grey)),
-              ),
-            )
-          : ListView.builder(
-              itemCount: widget.doctorProvider.doctor!.pacientes!.length,
-              itemBuilder: (context, index) {
-                if (widget.doctorProvider.doctor!.pacientes!.isEmpty) {
-                  return const Center(
-                    child: Text('No tienes pacientes'),
-                  );
-                }
-                final paciente =
-                    widget.doctorProvider.doctor!.pacientes![index];
+    final pacientes = doctorProvider.doctor!.pacientes!;
 
-                return Card(
-                  child: ListTile(
-                    title: Text(paciente.name),
-                    trailing: const Icon(Icons.arrow_forward_ios),
-                    onTap: () {
-                      notesProvider.getNotes(paciente.id!);
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => DiarioView(
-                            userId: paciente.id!,
-                          ),
-                        ),
-                      );
-                    },
+    return Scaffold(
+      backgroundColor: Colors.transparent,
+      body: SafeArea(
+        child: pacientes.isEmpty
+            ? const Column(
+                children: [
+                  Padding(
+                    padding: EdgeInsets.fromLTRB(20, 8, 20, 0),
+                    child: HavenPageHeader(
+                      kicker: 'Consultorio',
+                      title: 'Tus pacientes',
+                      subtitle:
+                          'Comparte tu código desde Espacio para empezar a acompañar.',
+                    ),
                   ),
-                );
-              },
-            ),
+                  Expanded(
+                    child: HavenEmptyState(
+                      icon: Icons.people_outline_rounded,
+                      title: 'Todavía no hay vínculos',
+                      subtitle:
+                          'Cuando alguien ingrese tu código, aparecerá aquí con su diario.',
+                    ),
+                  ),
+                ],
+              )
+            : ListView.builder(
+                padding: const EdgeInsets.fromLTRB(20, 8, 20, 118),
+                itemCount: pacientes.length + 1,
+                itemBuilder: (context, index) {
+                  if (index == 0) {
+                    return const Padding(
+                      padding: EdgeInsets.only(bottom: 12),
+                      child: HavenPageHeader(
+                        kicker: 'Consultorio',
+                        title: 'Quienes acompañas',
+                        subtitle:
+                            'Entra a un diario para leer con respeto y dejar un ejercicio.',
+                      ),
+                    );
+                  }
+                  final paciente = pacientes[index - 1];
+                  final initials = paciente.name.isEmpty
+                      ? '?'
+                      : paciente.name
+                          .trim()
+                          .split(' ')
+                          .take(2)
+                          .map((e) => e[0])
+                          .join()
+                          .toUpperCase();
+                  return Padding(
+                    padding: const EdgeInsets.only(bottom: 12),
+                    child: InkWell(
+                      borderRadius: BorderRadius.circular(24),
+                      onTap: () {
+                        notesProvider.getNotes(paciente.id!);
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => DiarioView(
+                              userId: paciente.id!,
+                            ),
+                          ),
+                        );
+                      },
+                      child: Container(
+                        padding: const EdgeInsets.all(16),
+                        decoration: BoxDecoration(
+                          color: palette.surface,
+                          borderRadius: BorderRadius.circular(24),
+                          border: Border.all(color: palette.line),
+                        ),
+                        child: Row(
+                          children: [
+                            CircleAvatar(
+                              radius: 24,
+                              backgroundColor: palette.primarySoft,
+                              child: Text(
+                                initials,
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .titleMedium
+                                    ?.copyWith(color: palette.primaryDeep),
+                              ),
+                            ),
+                            const SizedBox(width: 14),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    paciente.name,
+                                    style:
+                                        Theme.of(context).textTheme.titleLarge,
+                                  ),
+                                  Text(
+                                    'Abrir diario compartido',
+                                    style:
+                                        Theme.of(context).textTheme.bodySmall,
+                                  ),
+                                ],
+                              ),
+                            ),
+                            Icon(
+                              Icons.arrow_forward_rounded,
+                              color: palette.inkFaint,
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  );
+                },
+              ),
+      ),
     );
   }
 }

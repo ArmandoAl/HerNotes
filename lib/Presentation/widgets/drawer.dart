@@ -193,9 +193,8 @@ class _DrawerWidgetState extends State<DrawerWidget> {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                                builder: (context) => ListOfUsersView(
-                                      doctorProvider: doctorProvider,
-                                    )),
+                              builder: (context) => const ListOfUsersView(),
+                            ),
                           );
                         }
                       },
@@ -246,9 +245,7 @@ class _DrawerWidgetState extends State<DrawerWidget> {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => ProgresoView(
-                            userProvider: userProvider,
-                          ),
+                          builder: (context) => const ProgresoView(),
                         ),
                       );
                     }
