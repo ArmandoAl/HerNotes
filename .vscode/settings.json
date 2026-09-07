@@ -1,5 +1,6 @@
 {
   "java.configuration.updateBuildConfiguration": "interactive",
   "dart.flutterHotReloadOnSave": "manualIfDirty",
-  "dart.hotReloadOnSave": "manualIfDirty"
+  "dart.hotReloadOnSave": "manualIfDirty",
+  "dart.flutterSdkPath": ".fvm/versions/3.47.1"
 }

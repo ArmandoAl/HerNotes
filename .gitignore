@@ -44,8 +44,7 @@ app.*.map.json
 /android/app/release
 
 # FVM: keep version pin, ignore local SDK copies
-.fvm/flutter_sdk
-.fvm/versions
-.fvm/release
-.fvm/version
 .firebase/
+
+# FVM Version Cache
+.fvm/
